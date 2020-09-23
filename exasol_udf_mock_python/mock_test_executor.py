@@ -6,6 +6,7 @@ from typing import Dict, List, Any, Tuple
 import dill
 import pandas as pd
 import textwrap
+import re
 
 class Column:
     def __init__(self, name, type, sql_type, precision=None, scale=None, length=None):
@@ -66,10 +67,25 @@ class MockMetaData:
         self._current_schema = current_schema
         self._scope_user = scope_user
         function_code = textwrap.dedent(dill.source.getsource(script_code_wrapper_function))
-        if function_code.startswith("def udf_wrapper():\n\n"):
+        function_name = script_code_wrapper_function.__name__
+        starts_with_pattern = r"^def[ \t]+"+function_name+r"[ \t]*\([ \t]*\)[ \t]*:[ \t]*\n"
+        print("starts_with_pattern",starts_with_pattern)
+        match = re.match(starts_with_pattern,function_code)
+        print("match", match)
+        if match is not None:
             self._script_code = textwrap.dedent("\n".join(function_code.split("\n")[1:]))
         else:
-            raise Exception(f"The script_code_wrapper_function has the wrong header. It needs to start with \"def udf_wrapper():\\n\n\\. However, we got {function_code}")
+            formatted_starts_with_pattern = starts_with_pattern.replace("\n","\\n").replace("\t","\\t")
+            raise Exception((
+                textwrap.dedent(
+                    f"""
+                    The script_code_wrapper_function has the wrong header.
+                    It needs to start with \"{formatted_starts_with_pattern}\". 
+                    However, we got:
+                    
+                    """)+
+                    function_code).strip())
+            
         self._connection_id = connection_id
         self._database_name = database_name
         self._database_version = database_version
