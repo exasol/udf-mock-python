@@ -16,7 +16,7 @@ class Column:
         self.scale = scale
         self.length = length
 
-    def __str__(self):
+    def __repr__(self):
         return str(self.__class__) + ": " + str(self.__dict__)
 
 
@@ -31,6 +31,9 @@ class Connection:
         self.password = password
         self.user = user
         self.address = address
+
+    def __repr__(self):
+        return str(self.__class__) + ": " + str(self.__dict__)
 
 
 class MockMetaData:
@@ -176,6 +179,9 @@ class MockMetaData:
     def output_columns(self):
         return self._output_columns
 
+    def __repr__(self):
+        return str(self.__class__) + ": " + str(self.__dict__)
+
 class MockExaEnvironment:
     def __init__(self, 
             metadata: MockMetaData, 
@@ -195,6 +201,9 @@ class MockExaEnvironment:
     @property
     def meta(self):
         return self._metadata
+
+    def __repr__(self):
+        return str(self.__class__) + ": " + str(self.__dict__)
 
 class MockContext:
 
