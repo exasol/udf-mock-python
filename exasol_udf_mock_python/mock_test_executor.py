@@ -2,7 +2,7 @@ import itertools
 from enum import Enum
 from multiprocessing import Lock
 from multiprocessing.pool import Pool
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Tuple
 import dill
 import pandas as pd
 import textwrap
@@ -55,10 +55,7 @@ class MockMetaData:
             session_id: int="123456789",
             statement_id: int="123456789",
             memory_limit: int=4*1073741824,
-            connections: Dict[str, Connection]=None):
-        self._connections = connections
-        if self._connections is None:
-            self._connections = {}
+            ):
         self._script_language = "PYTHON3"
         self._script_name = script_name
         self._script_schema = script_schema
@@ -179,21 +176,29 @@ class MockMetaData:
     def output_columns(self):
         return self._output_columns
 
-    def get_connection(self, name):
+class MockExaEnvironment:
+    def __init__(self, 
+            metadata: MockMetaData, 
+            connections: Dict[str, Connection]=None
+            ):
+        self._connections = connections
+        if self._connections is None:
+            self._connections = {}
+        self._metadata = metadata
+
+    def get_connection(self, name:str)->Connection:
         return self._connections[name]
 
+    def import_script(self, schema_script_name:str):
+        raise Exception("Import Script is currently not supported by this mock. We also advise against its usage in general and use instead proper packaging mechanism of your the language in choice.")
 
-class ExaEnvironment:
-    def __init__(self, metadata=None):
-        self.meta = metadata
-
-
-exa = ExaEnvironment()
-
+    @property
+    def meta(self):
+        return self._metadata
 
 class MockContext:
 
-    def __init__(self, inputs, metadata):
+    def __init__(self, inputs:List[Tuple[Any]], metadata:MockMetaData):
         self._inputs = inputs                               # actual data
         self._outputs = []
         self._iter = iter(self._inputs)
@@ -220,7 +225,6 @@ class MockContext:
             return None
         else:
             self.next()
-            #df.to_csv('data.csv')
             return df
 
     @property
@@ -264,16 +268,16 @@ class MockTestExecutor:
         codeObject = compile("cleanup()", 'exec_cleanup', 'exec')
         exec(codeObject, exec_globals)
 
-    def _exec_init(self, metadata:MockMetaData) -> Dict[str,Any]:
-        codeObject = compile(metadata.script_code, 'udf', 'exec')
-        exec_globals = {"meta":metadata}
+    def _exec_init(self, exa_environment:MockExaEnvironment) -> Dict[str,Any]:
+        codeObject = compile(exa_environment.meta.script_code, 'udf', 'exec')
+        exec_globals = {"exa":exa_environment}
         exec(codeObject, exec_globals)
         return exec_globals
 
-    def run(self, inputs, metadata):
+    def run(self, inputs, exa_environment:MockExaEnvironment):
         with self._lock:
-            ctx = MockContext(inputs, metadata)
-            exec_globals=self._exec_init(metadata)
+            ctx = MockContext(inputs, exa_environment.meta)
+            exec_globals=self._exec_init(exa_environment)
             try:
                 self._exec_run(exec_globals,ctx)
             finally:
