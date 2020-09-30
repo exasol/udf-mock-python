@@ -25,10 +25,6 @@ class MockContextRunWrapper:
     def get_dataframe(self, num_rows='all', start_col=0):
         return self._mock_context.get_dataframe(num_rows, start_col)
 
-    @property
-    def data(self):
-        return self._mock_context.data
-
     def __getattr__(self, name):
         return self._mock_context.__getattr__(name)
 

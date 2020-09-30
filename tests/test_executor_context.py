@@ -1,4 +1,5 @@
 from exasol_udf_mock_python.column import Column
+from exasol_udf_mock_python.group import Group
 from exasol_udf_mock_python.mock_exa_environment import MockExaEnvironment
 from exasol_udf_mock_python.mock_meta_data import MockMetaData
 from exasol_udf_mock_python.mock_test_executor import MockTestExecutor
@@ -22,8 +23,8 @@ def test_next_and_emit():
         output_columns=[Column("t", int, "INTEGER")]
     )
     exa = MockExaEnvironment(meta)
-    result = executor.run([(1,), (5,), (6,)], exa)
-    assert result == [(1,), (5,), (6,)]
+    result = executor.run([Group([(1,), (5,), (6,)])], exa)
+    assert result == [Group([(1,), (5,), (6,)])]
 
 
 def test_get_dataframe_all():
@@ -41,8 +42,8 @@ def test_get_dataframe_all():
         output_columns=[Column("t", int, "INTEGER")]
     )
     exa = MockExaEnvironment(meta)
-    result = executor.run([(1,), (5,), (6,)], exa)
-    assert result == [(1,), (5,), (6,)]
+    result = executor.run([Group([(1,), (5,), (6,)])], exa)
+    assert result == [Group([(1,), (5,), (6,)])]
 
 
 def test_get_dataframe_iter():
@@ -65,8 +66,8 @@ def test_get_dataframe_iter():
         output_columns=[Column("t", int, "INTEGER")]
     )
     exa = MockExaEnvironment(meta)
-    result = executor.run([(1,), (2,), (3,), (4,), (5,), (6,)], exa)
-    assert result == [(1,), (2,), (3,), (4,), (5,), (6,)]
+    result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+    assert result == [Group([(1,), (2,), (3,), (4,), (5,), (6,)])]
 
 
 def test_get_dataframe_iter_next():
@@ -78,7 +79,7 @@ def test_get_dataframe_iter_next():
                 if df is None:
                     return
                 else:
-                    ctx.emit(ctx.data)
+                    ctx.emit(df)
                     ctx.next()
 
     executor = MockTestExecutor()
@@ -90,5 +91,5 @@ def test_get_dataframe_iter_next():
         output_columns=[Column("t", int, "INTEGER")]
     )
     exa = MockExaEnvironment(meta)
-    result = executor.run([(1,), (2,), (3,), (4,), (5,), (6,)], exa)
-    assert result == [(1,), (2,), (4,), (5,)]
+    result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+    assert result == [Group([(1,), (2,), (4,), (5,)])]
