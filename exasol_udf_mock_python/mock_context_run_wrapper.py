@@ -15,7 +15,7 @@ class MockContextRunWrapper:
             self.emit = _disallowed_function
         else:
             self.emit = self._mock_context.emit
-        if self._output_type == "SCALAR":
+        if self._input_type == "SCALAR":
             self.next = _disallowed_function
             self.reset = _disallowed_function
         else:

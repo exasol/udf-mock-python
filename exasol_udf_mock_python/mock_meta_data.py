@@ -36,24 +36,7 @@ class MockMetaData:
         self._current_user = current_user
         self._current_schema = current_schema
         self._scope_user = scope_user
-        function_code = textwrap.dedent(dill.source.getsource(script_code_wrapper_function))
-        function_name = script_code_wrapper_function.__name__
-        starts_with_pattern = r"^def[ \t]+"+function_name+r"[ \t]*\([ \t]*\)[ \t]*:[ \t]*\n"
-        match = re.match(starts_with_pattern,function_code)
-        if match is not None:
-            self._script_code = textwrap.dedent("\n".join(function_code.split("\n")[1:]))
-        else:
-            formatted_starts_with_pattern = starts_with_pattern.replace("\n","\\n").replace("\t","\\t")
-            raise Exception((
-                textwrap.dedent(
-                    f"""
-                    The script_code_wrapper_function has the wrong header.
-                    It needs to start with \"{formatted_starts_with_pattern}\". 
-                    However, we got:
-                    
-                    """)+
-                    function_code).strip())
-
+        self._script_code = self._extract_script_code(script_code_wrapper_function)
         self._connection_id = connection_id
         self._database_name = database_name
         self._database_version = database_version
@@ -64,11 +47,38 @@ class MockMetaData:
         self._statement_id = statement_id
         self._memory_limit = memory_limit
         self._input_type = input_type
+        self._validate_column_defintions(input_columns)
         self._input_column_count = len(input_columns)
         self._input_columns = input_columns
         self._output_type = output_type
+        self._validate_column_defintions(output_columns)
         self._output_column_count = len(output_columns)
         self._output_columns = output_columns
+
+    def _extract_script_code(self, script_code_wrapper_function):
+        function_code = textwrap.dedent(dill.source.getsource(script_code_wrapper_function))
+        function_name = script_code_wrapper_function.__name__
+        starts_with_pattern = r"^def[ \t]+" + function_name + r"[ \t]*\([ \t]*\)[ \t]*:[ \t]*\n"
+        match = re.match(starts_with_pattern, function_code)
+        if match is not None:
+            return textwrap.dedent("\n".join(function_code.split("\n")[1:]))
+        else:
+            formatted_starts_with_pattern = starts_with_pattern.replace("\n", "\\n").replace("\t", "\\t")
+            raise Exception((
+                                    textwrap.dedent(
+                                        f"""
+                    The script_code_wrapper_function has the wrong header.
+                    It needs to start with \"{formatted_starts_with_pattern}\". 
+                    However, we got:
+                    
+                    """) +
+                                    function_code).strip())
+
+    def _validate_column_defintions(self, columns):
+        column_names_set = {column.name for column in columns}
+        if len(column_names_set) != len(columns):
+            column_names_list = sorted([column.name for column in columns])
+            raise TypeError(f"Found duplicate column names in {column_names_list}")
 
     def convert_column_description(self, input_columns):
         return [(column.name, column.type, column.sql_type,

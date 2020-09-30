@@ -4,7 +4,7 @@ from exasol_udf_mock_python.column import Column
 from exasol_udf_mock_python.group import Group
 from exasol_udf_mock_python.mock_exa_environment import MockExaEnvironment
 from exasol_udf_mock_python.mock_meta_data import MockMetaData
-from exasol_udf_mock_python.mock_test_executor import MockTestExecutor
+from exasol_udf_mock_python.udf_mock_executor import UDFMockExecutor
 
 def test_different_udf_wrapper_function_names():
     def udf_wrapper():
@@ -23,7 +23,7 @@ def test_different_udf_wrapper_function_names():
             pass
 
 
-    executor = MockTestExecutor()
+    executor = UDFMockExecutor()
     meta = MockMetaData(
             script_code_wrapper_function=udf_wrapper,
             input_type="SET",
@@ -32,7 +32,7 @@ def test_different_udf_wrapper_function_names():
             output_columns=[Column("t", int, "INTEGER")]
             )
     exa = MockExaEnvironment(meta)
-    result=executor.run([Group([])], exa)
+    result=executor.run([Group([(1,)])], exa)
     assert result == [Group([])]
 
     meta = MockMetaData(
@@ -43,7 +43,7 @@ def test_different_udf_wrapper_function_names():
             output_columns=[Column("t", int, "INTEGER")]
             )
     exa = MockExaEnvironment(meta)
-    result=executor.run([Group([])], exa)
+    result=executor.run([Group([(1,)])], exa)
     assert result == [Group([])]
 
     meta = MockMetaData(
@@ -54,7 +54,7 @@ def test_different_udf_wrapper_function_names():
             output_columns=[Column("t", int, "INTEGER")]
             )
     exa = MockExaEnvironment(meta)
-    result=executor.run([Group([])], exa)
+    result=executor.run([Group([(1,)])], exa)
     assert result == [Group([])]
 
 def test_udf_wrapper_with_docstring_on_next_line():
@@ -68,7 +68,7 @@ def test_udf_wrapper_with_docstring_on_next_line():
         def run(ctx):
             pass
 
-    executor = MockTestExecutor()
+    executor = UDFMockExecutor()
     meta = MockMetaData(
             script_code_wrapper_function=udf_wrapper,
             input_type="SET",
@@ -77,7 +77,7 @@ def test_udf_wrapper_with_docstring_on_next_line():
             output_columns=[Column("t", int, "INTEGER")]
             )
     exa = MockExaEnvironment(meta)
-    result=executor.run([Group([])], exa)
+    result=executor.run([Group([(1,)])], exa)
     assert result == [Group([])]
 
 def test_udf_wrapper_with_docstring_after_empty_lines():
@@ -93,7 +93,7 @@ def test_udf_wrapper_with_docstring_after_empty_lines():
         def run(ctx):
             pass
 
-    executor = MockTestExecutor()
+    executor = UDFMockExecutor()
     meta = MockMetaData(
             script_code_wrapper_function=udf_wrapper,
             input_type="SET",
@@ -102,7 +102,7 @@ def test_udf_wrapper_with_docstring_after_empty_lines():
             output_columns=[Column("t", int, "INTEGER")]
             )
     exa = MockExaEnvironment(meta)
-    result=executor.run([Group([])], exa)
+    result=executor.run([Group([(1,)])], exa)
     assert result == [Group([])]
 
 def test_udf_wrapper_with_no_empty_line_after_function_name():
@@ -110,7 +110,7 @@ def test_udf_wrapper_with_no_empty_line_after_function_name():
         def run(ctx):
             pass
 
-    executor = MockTestExecutor()
+    executor = UDFMockExecutor()
     meta = MockMetaData(
             script_code_wrapper_function=udf_wrapper,
             input_type="SET",
@@ -119,7 +119,7 @@ def test_udf_wrapper_with_no_empty_line_after_function_name():
             output_columns=[Column("t", int, "INTEGER")]
             )
     exa = MockExaEnvironment(meta)
-    result=executor.run([Group([])], exa)
+    result=executor.run([Group([(1,)])], exa)
     assert result == [Group([])]
 
 def test_udf_wrapper_with_white_spaces_in_function_definition():
@@ -128,7 +128,7 @@ def test_udf_wrapper_with_white_spaces_in_function_definition():
         def run(ctx):
             pass
 
-    executor = MockTestExecutor()
+    executor = UDFMockExecutor()
     meta = MockMetaData(
             script_code_wrapper_function=udf_wrapper,
             input_type="SET",
@@ -137,7 +137,7 @@ def test_udf_wrapper_with_white_spaces_in_function_definition():
             output_columns=[Column("t", int, "INTEGER")]
             )
     exa = MockExaEnvironment(meta)
-    result=executor.run([Group([])], exa)
+    result=executor.run([Group([(1,)])], exa)
     assert result == [Group([])]
 
 def test_exception_udf_wrapper_with_parameter():
@@ -145,7 +145,7 @@ def test_exception_udf_wrapper_with_parameter():
         def run(ctx):
             pass
 
-    executor = MockTestExecutor()
+    executor = UDFMockExecutor()
     with pytest.raises(Exception):
         meta = MockMetaData(
                 script_code_wrapper_function=udf_wrapper,
@@ -155,5 +155,5 @@ def test_exception_udf_wrapper_with_parameter():
                 output_columns=[Column("t", int, "INTEGER")]
                 )
         exa = MockExaEnvironment(meta)
-        result=executor.run([Group([])], exa)
+        result=executor.run([Group([(1,)])], exa)
 

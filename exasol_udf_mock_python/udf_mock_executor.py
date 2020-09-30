@@ -1,5 +1,5 @@
 from multiprocessing import Lock
-from typing import Dict, Any, Iterator, List, Union, Callable
+from typing import Dict, Any, Iterator, List, Union, Callable, Tuple
 
 from exasol_udf_mock_python.group import Group
 from exasol_udf_mock_python.mock_context import MockContext
@@ -13,14 +13,14 @@ def _loop_groups(ctx:MockContext, exa:MockExaEnvironment, runfunc:Callable):
 def _wrapped_run(ctx:MockContext, exa:MockExaEnvironment, runfunc:Callable):
     wrapped_ctx = MockContextRunWrapper(ctx, exa.meta.input_type, exa.meta.output_type)
     if exa.meta.input_type == "SET":
-        if exa.meta.output_type == "EMIT":
-            ctx.emit(runfunc(wrapped_ctx))
+        if exa.meta.output_type == "RETURNS":
+            run_with_returns(ctx, runfunc, wrapped_ctx)
         else:
             runfunc(wrapped_ctx)
     else:
         if exa.meta.output_type == "RETURNS":
             while (True):
-                ctx.emit(runfunc(wrapped_ctx))
+                run_with_returns(ctx, runfunc, wrapped_ctx)
                 if not ctx.next():
                     break
         else:
@@ -30,7 +30,15 @@ def _wrapped_run(ctx:MockContext, exa:MockExaEnvironment, runfunc:Callable):
                     break
 
 
-class MockTestExecutor:
+def run_with_returns(ctx, runfunc, wrapped_ctx):
+    result = runfunc(wrapped_ctx)
+    if isinstance(result, Tuple):
+        ctx.emit(*result)
+    else:
+        ctx.emit(result)
+
+
+class UDFMockExecutor:
     _lock = Lock()
 
     def _exec_run(self, exec_globals: Dict[str, Any], ctx: MockContext):
