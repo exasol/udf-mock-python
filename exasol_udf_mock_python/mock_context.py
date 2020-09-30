@@ -100,5 +100,5 @@ class MockContext:
         if len(row) != len(columns):
             raise Exception(f"row {row} has not the same number of values as columns are defined")
         for i, column in enumerate(columns):
-            if not isinstance(row[i], column.type):
+            if row[i] is not None and not isinstance(row[i], column.type):
                 raise TypeError(f"Value {row[i]} ({type(row[i])}) at position {i} is not a {column.type}")

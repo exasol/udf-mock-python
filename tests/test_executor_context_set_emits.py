@@ -28,6 +28,43 @@ def test_next_and_emit():
     result = executor.run([Group([(1,), (5,), (6,)])], exa)
     assert result == [Group([(1,), (5,), (6,)])]
 
+def test_emit_single_column_none():
+    def udf_wrapper():
+
+        def run(ctx):
+            ctx.emit(None)
+
+    executor = UDFMockExecutor()
+    meta = MockMetaData(
+        script_code_wrapper_function=udf_wrapper,
+        input_type="SET",
+        input_columns=[Column("t", int, "INTEGER")],
+        output_type="EMITS",
+        output_columns=[Column("t", int, "INTEGER")]
+    )
+    exa = MockExaEnvironment(meta)
+    result = executor.run([Group([(1,), (5,), (6,)])], exa)
+    assert result == [Group([(None,)])]
+
+def test_emit_multi_column_none():
+    def udf_wrapper():
+
+        def run(ctx):
+            ctx.emit(None,None)
+
+    executor = UDFMockExecutor()
+    meta = MockMetaData(
+        script_code_wrapper_function=udf_wrapper,
+        input_type="SET",
+        input_columns=[Column("t", int, "INTEGER")],
+        output_type="EMITS",
+        output_columns=[Column("t1", int, "INTEGER"),
+                        Column("t2", int, "INTEGER")]
+    )
+    exa = MockExaEnvironment(meta)
+    result = executor.run([Group([(1,), (5,), (6,)])], exa)
+    assert result == [Group([(None,None)])]
+
 def test_next_emit_reset():
     def udf_wrapper():
 
