@@ -1,0 +1,35 @@
+name: Test exasol-udf-mock-python
+
+on:
+  push:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Run image
+      uses: abatilo/actions-poetry@v2.0.0
+    - name: Run pytest
+      uses: dephell/dephell_action@master
+      with:
+        dephell-env: pytest
+    - name: Run convert
+      uses: dephell/dephell_action@master
+      with:
+        dephell-env: convert
+    - name: Show changes on working copy
+      run: git status --porcelain=v1 -uno
+    - name: Show diff on working copy
+      run: git diff
+    - name: Check if setup.py changed
+      run: |
+        [ -z "$(git status --porcelain=v1 -uno 2>/dev/null)" ] 
