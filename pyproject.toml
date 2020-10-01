@@ -9,7 +9,7 @@ authors = [
     "Torsten Kilias <torsten.kilias@exasol.com>"
 ]
 
-readme = 'README.md'  # Markdown files are supported
+readme = 'README.md'
 
 repository = "https://github.com/exasol/exasol-udf-mock-python"
 homepage = "https://github.com/exasol/exasol-udf-mock-python"
