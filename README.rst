@@ -18,7 +18,7 @@ Installing via pip
 
 .. code-block::
 
-   pip install git+https://github.com/exasol/exasol-udf-mock-python.git@master
+   pip install git+https://github.com/exasol/udf-mock-python.git@master
 
 Installing via poetry
 ^^^^^^^^^^^^^^^^^^^^^
@@ -28,7 +28,7 @@ Add it to your ``tool.poetry.dependencies`` or ``tool.poetry.dev-dependencies``
 .. code-block::
 
    [tool.poetry.dev-dependencies]
-   exasol-udf-mock-python = { git = "https://github.com/exasol/exasol-udf-mock-python.git", branch = "master" }
+   exasol-udf-mock-python = { git = "https://github.com/exasol/udf-mock-python.git", branch = "master" }
    ...
 
 How to use the Mock

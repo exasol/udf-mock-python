@@ -11,8 +11,8 @@ authors = [
 
 readme = 'README.md'
 
-repository = "https://github.com/exasol/exasol-udf-mock-python"
-homepage = "https://github.com/exasol/exasol-udf-mock-python"
+repository = "https://github.com/exasol/udf-mock-python"
+homepage = "https://github.com/exasol/udf-mock-python"
 
 keywords = ['exasol', 'udf', 'mock', 'testing']
 
