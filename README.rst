@@ -71,17 +71,19 @@ The following example shows the general setup for a test with the Mock:
    exa = MockExaEnvironment(meta)
    result = executor.run([Group([(1,1.0,"1"), (5,5.0,"5"), (6,6.0,"6")])], exa)
 
-Checkout the `tests <tests>`_ for more information about, how to use the Mock.
+**Checkout the `tests <tests>`_ for more information about, how to use the Mock.**
 
-Limitations
------------
+Limitations or missing features
+-------------------------------
 
-Some of the following limitations are fundamental, other might get removed by later releases:
+Some of the following limitations are fundamental, other are missing
+feature and might get removed by later releases:
 
 
 * Data type checks for outputs are more strict as in real UDFs
 * No support for Import or Export Specification or Virtual Schema adapter
 * No support for dynamic input and output parameters
+* No support for exa.import_script
 * No BucketFS
 * Execution is not isolated in a container
 
