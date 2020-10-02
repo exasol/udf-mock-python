@@ -27,7 +27,7 @@ setup(
     version='0.1.0',
     description='Mocking framework for Exasol Python UDFs',
     python_requires='==3.*,>=3.6.9',
-    project_urls={"homepage": "https://github.com/exasol/exasol-udf-mock-python", "repository": "https://github.com/exasol/exasol-udf-mock-python"},
+    project_urls={"homepage": "https://github.com/exasol/udf-mock-python", "repository": "https://github.com/exasol/udf-mock-python"},
     author='Torsten Kilias',
     author_email='torsten.kilias@exasol.com',
     license='MIT',
