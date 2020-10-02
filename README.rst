@@ -1,26 +1,53 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
 
+UDF Mock for Python
+===================
 
-**This project is in a very early development phase.\ :raw-html-m2r:`<br>`
-Please, be aware that the behavior of the mock runner doesn't perfectly\ :raw-html-m2r:`<br>`
-reflect the behaviors of the UDFs inside the database. In any case,\ :raw-html-m2r:`<br>`
-you need to verify your UDFs with integrations test inside the database.**
-
-This projects provides a mock runner for Python3 UDFs which allows you\ :raw-html-m2r:`<br>`
+This projects provides a mock runner for Python3 UDFs which allows you
 to test your UDFs locally without a database.
-The mock runner runs your python UDF in a python environment in which\ :raw-html-m2r:`<br>`
-no external variables, functions or classes are visable.
-This means in practice, you can only use things you defined inside your\ :raw-html-m2r:`<br>`
-UDF and what gets provided by the UDF frameworks,\ :raw-html-m2r:`<br>`
+
+**Note:** This project is in a very early development phase.
+Please, be aware that the behavior of the mock runner doesn't perfectly
+reflect the behaviors of the UDFs inside the database and that the interface still can change.
+In any case, you need to verify your UDFs with integrations test inside the database.
+
+Getting started
+---------------
+
+Installing via pip
+^^^^^^^^^^^^^^^^^^
+
+.. code-block::
+
+   pip install git+https://github.com/exasol/exasol-udf-mock-python.git@master
+
+Installing via poetry
+^^^^^^^^^^^^^^^^^^^^^
+
+Add it to your ``tool.poetry.dependencies`` or ``tool.poetry.dev-dependencies``
+
+.. code-block::
+
+   [tool.poetry.dev-dependencies]
+   exasol-udf-mock-python = { git = "https://github.com/exasol/exasol-udf-mock-python.git", branch = "master" }
+   ...
+
+How to use the Mock
+^^^^^^^^^^^^^^^^^^^
+
+The mock runner runs your python UDF in a python environment in which
+no external variables, functions or classes are visble.
+This means in practice, you can only use things you defined inside your
+UDF and what gets provided by the UDF frameworks,
 such as exa.meta and the context for the run function.
 This includes imports, variables, functions, classes and so on.
+
 You define a UDF in this framework within in a wrapper function.
-This wrapper function then contains all necassary imports, functions,\ :raw-html-m2r:`<br>`
+This wrapper function then contains all necessary imports, functions,
 variables and classes.
-You then handover the wrapper function to the ``UDFMockExecutor``\ :raw-html-m2r:`<br>`
+You then handover the wrapper function to the ``UDFMockExecutor``
 which runs the UDF inside if the isolated python environment.
 The following example shows, how you use this framework:
+The following example shows the general setup for a test with the Mock:
 
 .. code-block::
 
@@ -44,12 +71,31 @@ The following example shows, how you use this framework:
    exa = MockExaEnvironment(meta)
    result = executor.run([Group([(1,1.0,"1"), (5,5.0,"5"), (6,6.0,"6")])], exa)
 
-Limitations:
+Checkout the `tests <tests>`_ for more information about, how to use the Mock.
+
+Limitations
+-----------
+
+Some of the following limitations are fundamental, other might get removed by later releases:
 
 
-* Currently, data type checks for outputs are more strict as in real UDFs
-* Currently, no support for Import or Export Specification or Virtual Schema adapter
-* Currently, no support for dynamic input and output parameters
-* No BucketFS access
-* Is not isolated in a container, only the python codes runs in a isolated environment, which means not external variables, functions or classes are visiable inside the UDF
-* No support for Python2, because Python2 is officially End of Life and only get served by some Linux distributions with very critical fixes
+* Data type checks for outputs are more strict as in real UDFs
+* No support for Import or Export Specification or Virtual Schema adapter
+* No support for dynamic input and output parameters
+* No BucketFS
+* Execution is not isolated in a container
+
+  * Can access and manipulate the file system of the system running the Mock
+
+    * UDF inside of the database only can write /tmp to tmp and
+      only see the file system of the script-language container and the mounted bucketfs
+
+  * Can use all python package available in the system running the Mock
+
+    * If you use package which are currently not available in the script-language containers,
+      you need create your own container for testing inside of the database
+
+  * Does not emulate the ressource limitations which get a applied in the database
+
+* Only one instance of the UDF gets executed
+* No support for Python2, because Python2 is officially End of Life
