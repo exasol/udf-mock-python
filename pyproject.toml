@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "exasol-udf-mock-python"
+version = "0.1.0"
+description = "Mocking framework for Exasol Python UDFs"
+
+license = "MIT"
+
+authors = [
+    "Torsten Kilias <torsten.kilias@exasol.com>"
+]
+
+readme = 'README.md'
+
+repository = "https://github.com/exasol/exasol-udf-mock-python"
+homepage = "https://github.com/exasol/exasol-udf-mock-python"
+
+keywords = ['exasol', 'udf', 'mock', 'testing']
+
+[tool.poetry.dependencies]
+python = "^3.6.9"
+pandas = "^1.1.2"
+dill = "^0.3.2"
+redbaron = "^0.9.2"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.0.2"
+pytest-cov = "^2.10.1"
+
+[tool.dephell.main]
+from = {format = "poetry", path = "pyproject.toml"}
+to = {format = "setuppy", path = "setup.py"}
+
+[tool.dephell.pytest]
+from = {format = "poetry", path = "pyproject.toml"}
+command = "pytest"
+
+[tool.dephell.convert]
+from = {format = "poetry", path = "pyproject.toml"}
+command = "dephell deps convert"
