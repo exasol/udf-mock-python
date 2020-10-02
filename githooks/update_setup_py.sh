@@ -16,7 +16,7 @@ ROOT_DIR=$(git rev-parse --show-cdup)
 
 pushd "$ROOT_DIR" > /dev/null
 
-dephell deps convert
+dephell venv run --env convert
 git add setup.py README.rst
 
 popd > /dev/null
