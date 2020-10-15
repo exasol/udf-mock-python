@@ -26,7 +26,7 @@ setup(
     name='exasol-udf-mock-python',
     version='0.1.0',
     description='Mocking framework for Exasol Python UDFs',
-    python_requires='>=3.6.0',
+    python_requires='>=3.6.1',
     project_urls={"homepage": "https://github.com/exasol/udf-mock-python", "repository": "https://github.com/exasol/udf-mock-python"},
     author='Torsten Kilias',
     author_email='torsten.kilias@exasol.com',
@@ -35,6 +35,6 @@ setup(
     packages=['exasol_udf_mock_python'],
     package_dir={"": "."},
     package_data={},
-    install_requires=['dill==0.*,>=0.3.2', 'pandas==1.*,>=1.1.2', 'redbaron==0.*,>=0.9.2'],
-    extras_require={"dev": ["pytest==6.*,>=6.0.2", "pytest-cov==2.*,>=2.10.1"]},
+    install_requires=['dill==0.*,>=0.3.2', 'pandas==1.*,>=1.1.3'],
+    extras_require={"dev": ["pytest==6.*,>=6.1.1", "pytest-cov==2.*,>=2.10.1"]},
 )
