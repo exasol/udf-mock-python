@@ -58,7 +58,10 @@ class UDFMockExecutor:
         exec(codeObject, exec_globals)
         return exec_globals
 
-    def run(self, input_groups:Union[Iterator[Group],List[Group]], exa_environment: MockExaEnvironment):
+    def run(self,
+            input_groups:Union[Iterator[Group],List[Group]],
+            exa_environment: MockExaEnvironment)\
+            ->List[Group]:
         with self._lock:
             if isinstance(input_groups,Iterator):
                 ctx = MockContext(input_groups, exa_environment.meta)

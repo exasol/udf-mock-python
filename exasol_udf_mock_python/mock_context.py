@@ -14,8 +14,10 @@ class MockContext:
         self._input_groups = input_groups
         self._output_groups = []
         self._input_group = None  # type: Group
+        self._output_group_list = None # type: List
         self._output_group = None  # type: Group
         self._iter = None  # type: Iterator[Tuple]
+        self._len = None # type: int
         self._metadata = metadata
         self._name_position_map = \
             {column.name: position
@@ -27,19 +29,25 @@ class MockContext:
             self._input_group = next(self._input_groups)
         except StopIteration as e:
             self._data = None
+            self._output_group_list = None
             self._output_group = None
             self._input_group = None
             self._iter = None
+            self._len = None
             return False
-        if len(self._input_group.rows) == 0:
+        self._len = len(self._input_group)
+        if self._len == 0:
             self._data = None
+            self._output_group_list = None
             self._output_group = None
             self._input_group = None
             self._iter = None
+            self._len = None
             raise RuntimeError("Empty input groups are not allowd")
-        self._output_group = Group([])
+        self._output_group_list = []
+        self._output_group = Group(self._output_group_list)
         self._output_groups.append(self._output_group)
-        self._iter = iter(self._input_group.rows)
+        self._iter = iter(self._input_group)
         self.next()
         return True
 
@@ -80,10 +88,10 @@ class MockContext:
                 return False
 
     def size(self):
-        return len(self._input_group.rows)
+        return self._len
 
     def reset(self):
-        self._iter = iter(self._input_group.rows)
+        self._iter = iter(self._input_group)
         self.next()
 
     def emit(self, *args):
@@ -93,7 +101,7 @@ class MockContext:
             tuples = [args]
         for row in tuples:
             self.validate_tuples(row, self._metadata.output_columns)
-        self._output_group.rows.extend(tuples)
+        self._output_group_list.extend(tuples)
         return
 
     def validate_tuples(self, row: Tuple, columns: List[Column]):
