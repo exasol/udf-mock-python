@@ -21,12 +21,9 @@ class MockContextRunWrapper:
         else:
             self.next = self._mock_context.next
             self.reset = self._mock_context.reset
+            self.get_dataframe = self._mock_context.get_dataframe
+            self.size = self._mock_context.size
 
-    def get_dataframe(self, num_rows='all', start_col=0):
-        return self._mock_context.get_dataframe(num_rows, start_col)
 
     def __getattr__(self, name):
         return self._mock_context.__getattr__(name)
-
-    def size(self):
-        return self._mock_context.size()
