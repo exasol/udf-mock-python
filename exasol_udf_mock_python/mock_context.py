@@ -1,4 +1,3 @@
-import itertools
 from typing import List, Tuple, Iterator
 
 import pandas as pd
@@ -6,9 +5,10 @@ import pandas as pd
 from exasol_udf_mock_python.column import Column
 from exasol_udf_mock_python.group import Group
 from exasol_udf_mock_python.mock_meta_data import MockMetaData
+from exasol_udf_mock_python.udf_context import UDFContext
 
 
-class MockContext:
+class MockContext(UDFContext):
 
     def __init__(self, input_groups: Iterator[Group], metadata: MockMetaData):
         self._input_groups = input_groups
@@ -81,7 +81,7 @@ class MockContext:
             try:
                 new_data = next(self._iter)
                 self._data = new_data
-                self.validate_tuples(self._data, self._metadata.input_columns)
+                self._validate_tuples(self._data, self._metadata.input_columns)
                 return True
             except StopIteration as e:
                 self._data = None
@@ -100,11 +100,11 @@ class MockContext:
         else:
             tuples = [args]
         for row in tuples:
-            self.validate_tuples(row, self._metadata.output_columns)
+            self._validate_tuples(row, self._metadata.output_columns)
         self._output_group_list.extend(tuples)
         return
 
-    def validate_tuples(self, row: Tuple, columns: List[Column]):
+    def _validate_tuples(self, row: Tuple, columns: List[Column]):
         if len(row) != len(columns):
             raise Exception(f"row {row} has not the same number of values as columns are defined")
         for i, column in enumerate(columns):
