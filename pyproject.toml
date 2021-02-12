@@ -25,14 +25,3 @@ dill = "^0.3.2"
 pytest = "^6.1.1"
 pytest-cov = "^2.10.1"
 
-[tool.dephell.main]
-from = {format = "poetry", path = "pyproject.toml"}
-to = {format = "setuppy", path = "setup.py"}
-
-[tool.dephell.pytest]
-from = {format = "poetry", path = "pyproject.toml"}
-command = "pytest"
-
-[tool.dephell.convert]
-from = {format = "poetry", path = "pyproject.toml"}
-command = "dephell deps convert"
