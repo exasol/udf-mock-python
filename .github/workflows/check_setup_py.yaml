@@ -15,14 +15,15 @@ jobs:
     - uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Run convert
-      uses: dephell/dephell_action@master
-      with:
-        dephell-env: convert
+    - uses: abatilo/actions-poetry@v2.0.0
+    - name: Run packaging update
+      run: bash githooks/update_setup_py.sh
     - name: Show changes on working copy
       run: git status --porcelain=v1 -uno
     - name: Show diff on working copy
       run: git diff
     - name: Check if setup.py changed
       run: |
-        [ -z "$(git status --porcelain=v1 -uno 2>/dev/null)" ] 
+        [ -z "$(git status --porcelain=v1 -uno 2>/dev/null)" ]
+    - name: Check if setup.py works
+      run: pip install .
