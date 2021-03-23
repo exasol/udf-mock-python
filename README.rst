@@ -50,7 +50,13 @@ The following example shows, how you use this framework:
 The following example shows the general setup for a test with the Mock:
 
 .. code-block::
-
+   from exasol_udf_mock_python.udf_mock_executor import UDFMockExecutor
+   from exasol_udf_mock_python.mock_meta_data import MockMetaData
+   from exasol_udf_mock_python.column import Column
+   from exasol_udf_mock_python.mock_exa_environment import MockExaEnvironment
+   from exasol_udf_mock_python.group import Group
+   
+   
    def udf_wrapper():
 
        def run(ctx):
