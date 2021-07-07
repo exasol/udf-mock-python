@@ -14,10 +14,10 @@ class MockContext(UDFContext):
         self._input_groups = input_groups
         self._output_groups = []
         self._input_group = None  # type: Group
-        self._output_group_list = None # type: List
+        self._output_group_list = None  # type: List
         self._output_group = None  # type: Group
         self._iter = None  # type: Iterator[Tuple]
-        self._len = None # type: int
+        self._len = None  # type: int
         self._metadata = metadata
         self._name_position_map = \
             {column.name: position
@@ -51,7 +51,14 @@ class MockContext(UDFContext):
         self.next()
         return True
 
+    def _is_positive_integer(self, value):
+        return value is not None and isinstance(value, int) and value > 0
+
     def get_dataframe(self, num_rows='all', start_col=0):
+        if not (num_rows == 'all' or self._is_positive_integer(num_rows)):
+            raise RuntimeError("get_dataframe() parameter 'num_rows' must be 'all' or an integer > 0")
+        if not (self._is_positive_integer(start_col) or start_col == 0):
+            raise RuntimeError("get_dataframe() parameter 'start_col' must be an integer >= 0")
         if self._data is None:
             return None
         columns_ = [column.name for column in self._metadata.input_columns]
@@ -66,7 +73,7 @@ class MockContext(UDFContext):
                 df = df.append(df_current)
             if not self.next():
                 break
-            i+=1
+            i += 1
         if df is not None:
             df = df.reset_index(drop=True)
         return df
@@ -74,7 +81,7 @@ class MockContext(UDFContext):
     def __getattr__(self, name):
         return self._data[self._name_position_map[name]]
 
-    def next(self, reset:bool = False):
+    def next(self, reset: bool = False):
         if reset:
             self.reset()
         else:

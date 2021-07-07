@@ -28,9 +28,9 @@ def test_next_and_emit():
     result = executor.run([Group([(1,), (5,), (6,)])], exa)
     assert result == [Group([(1,), (5,), (6,)])]
 
+
 def test_emit_single_column_none():
     def udf_wrapper():
-
         def run(ctx):
             ctx.emit(None)
 
@@ -46,11 +46,11 @@ def test_emit_single_column_none():
     result = executor.run([Group([(1,), (5,), (6,)])], exa)
     assert result == [Group([(None,)])]
 
+
 def test_emit_multi_column_none():
     def udf_wrapper():
-
         def run(ctx):
-            ctx.emit(None,None)
+            ctx.emit(None, None)
 
     executor = UDFMockExecutor()
     meta = MockMetaData(
@@ -63,7 +63,8 @@ def test_emit_multi_column_none():
     )
     exa = MockExaEnvironment(meta)
     result = executor.run([Group([(1,), (5,), (6,)])], exa)
-    assert result == [Group([(None,None)])]
+    assert result == [Group([(None, None)])]
+
 
 def test_next_emit_reset():
     def udf_wrapper():
@@ -75,7 +76,7 @@ def test_next_emit_reset():
                     break
             ctx.reset()
             while True:
-                ctx.emit(ctx.t+1)
+                ctx.emit(ctx.t + 1)
                 if not ctx.next():
                     break
 
@@ -91,6 +92,7 @@ def test_next_emit_reset():
     result = executor.run([Group([(1,), (5,), (6,)])], exa)
     assert result == [Group([(1,), (5,), (6,), (2,), (6,), (7,)])]
 
+
 def test_next_reset_combined():
     def udf_wrapper():
 
@@ -101,7 +103,7 @@ def test_next_reset_combined():
                     break
             ctx.next(reset=True)
             for i in range(2):
-                ctx.emit(ctx.t+1)
+                ctx.emit(ctx.t + 1)
                 if not ctx.next():
                     break
 
@@ -115,7 +117,7 @@ def test_next_reset_combined():
     )
     exa = MockExaEnvironment(meta)
     result = executor.run([Group([(1,), (5,), (6,)])], exa)
-    assert result == [Group([(1,), (5,),(2,), (6,)])]
+    assert result == [Group([(1,), (5,), (2,), (6,)])]
 
 
 def test_get_dataframe_all():
@@ -185,9 +187,168 @@ def test_get_dataframe_iter_next():
     result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
     assert result == [Group([(1,), (2,), (4,), (5,)])]
 
+
+def test_get_dataframe_num_rows_1():
+    def udf_wrapper():
+        def run(ctx):
+            df = ctx.get_dataframe(num_rows=1)
+            ctx.emit(df)
+
+    executor = UDFMockExecutor()
+    meta = MockMetaData(
+        script_code_wrapper_function=udf_wrapper,
+        input_type="SET",
+        input_columns=[Column("t", int, "INTEGER")],
+        output_type="EMITS",
+        output_columns=[Column("t", int, "INTEGER")]
+    )
+    exa = MockExaEnvironment(meta)
+    result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+    assert result == [Group([(1,), ])]
+
+
+def test_get_dataframe_num_rows_0():
+    def udf_wrapper():
+        def run(ctx):
+            df = ctx.get_dataframe(num_rows=0)
+
+    executor = UDFMockExecutor()
+    meta = MockMetaData(
+        script_code_wrapper_function=udf_wrapper,
+        input_type="SET",
+        input_columns=[Column("t", int, "INTEGER")],
+        output_type="EMITS",
+        output_columns=[Column("t", int, "INTEGER")]
+    )
+    exa = MockExaEnvironment(meta)
+    with pytest.raises(RuntimeError) as excinfo:
+        result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+
+
+def test_get_dataframe_num_rows_float():
+    def udf_wrapper():
+        def run(ctx):
+            df = ctx.get_dataframe(num_rows=1.5)
+
+    executor = UDFMockExecutor()
+    meta = MockMetaData(
+        script_code_wrapper_function=udf_wrapper,
+        input_type="SET",
+        input_columns=[Column("t", int, "INTEGER")],
+        output_type="EMITS",
+        output_columns=[Column("t", int, "INTEGER")]
+    )
+    exa = MockExaEnvironment(meta)
+    with pytest.raises(RuntimeError) as excinfo:
+        result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+
+def test_get_dataframe_num_rows_None():
+    def udf_wrapper():
+        def run(ctx):
+            df = ctx.get_dataframe(num_rows=None)
+
+    executor = UDFMockExecutor()
+    meta = MockMetaData(
+        script_code_wrapper_function=udf_wrapper,
+        input_type="SET",
+        input_columns=[Column("t", int, "INTEGER")],
+        output_type="EMITS",
+        output_columns=[Column("t", int, "INTEGER")]
+    )
+    exa = MockExaEnvironment(meta)
+    with pytest.raises(RuntimeError) as excinfo:
+        result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+
+
+def test_get_dataframe_num_rows_negative():
+    def udf_wrapper():
+        def run(ctx):
+            df = ctx.get_dataframe(num_rows=-1)
+
+    executor = UDFMockExecutor()
+    meta = MockMetaData(
+        script_code_wrapper_function=udf_wrapper,
+        input_type="SET",
+        input_columns=[Column("t", int, "INTEGER")],
+        output_type="EMITS",
+        output_columns=[Column("t", int, "INTEGER")]
+    )
+    exa = MockExaEnvironment(meta)
+    with pytest.raises(RuntimeError) as excinfo:
+        result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+
+def test_get_dataframe_start_col_None():
+    def udf_wrapper():
+        def run(ctx):
+            df = ctx.get_dataframe(num_rows=10, start_col=None)
+
+    executor = UDFMockExecutor()
+    meta = MockMetaData(
+        script_code_wrapper_function=udf_wrapper,
+        input_type="SET",
+        input_columns=[Column("t", int, "INTEGER")],
+        output_type="EMITS",
+        output_columns=[Column("t", int, "INTEGER")]
+    )
+    exa = MockExaEnvironment(meta)
+    with pytest.raises(RuntimeError) as excinfo:
+        result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+
+def test_get_dataframe_start_col_negative():
+    def udf_wrapper():
+        def run(ctx):
+            df = ctx.get_dataframe(num_rows=10, start_col=-1)
+
+    executor = UDFMockExecutor()
+    meta = MockMetaData(
+        script_code_wrapper_function=udf_wrapper,
+        input_type="SET",
+        input_columns=[Column("t", int, "INTEGER")],
+        output_type="EMITS",
+        output_columns=[Column("t", int, "INTEGER")]
+    )
+    exa = MockExaEnvironment(meta)
+    with pytest.raises(RuntimeError) as excinfo:
+        result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+
+def test_get_dataframe_start_col_0():
+    def udf_wrapper():
+        def run(ctx):
+            df = ctx.get_dataframe(num_rows=1, start_col=0)
+            ctx.emit(df)
+
+    executor = UDFMockExecutor()
+    meta = MockMetaData(
+        script_code_wrapper_function=udf_wrapper,
+        input_type="SET",
+        input_columns=[Column("t", int, "INTEGER")],
+        output_type="EMITS",
+        output_columns=[Column("t", int, "INTEGER")]
+    )
+    exa = MockExaEnvironment(meta)
+    result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+    assert result == [Group([(1,), ])]
+
+def test_get_dataframe_start_col_positive():
+    def udf_wrapper():
+        def run(ctx):
+            df = ctx.get_dataframe(num_rows=1, start_col=1)
+            ctx.emit(df)
+
+    executor = UDFMockExecutor()
+    meta = MockMetaData(
+        script_code_wrapper_function=udf_wrapper,
+        input_type="SET",
+        input_columns=[Column("t", int, "INTEGER")],
+        output_type="EMITS",
+        output_columns=[Column("t", int, "INTEGER")]
+    )
+    exa = MockExaEnvironment(meta)
+    result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+    assert result == [Group([(1,), ])]
+
 def test_emit_tuple_exception():
     def udf_wrapper():
-
         def run(ctx):
             while True:
                 ctx.emit((1,))
