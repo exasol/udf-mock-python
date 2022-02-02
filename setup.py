@@ -8,7 +8,7 @@ package_data = \
 {'': ['*']}
 
 install_requires = \
-['dill>=0.3.2,<0.4.0', 'pandas>=1.1.3,<2.0.0']
+['dill>=0.3.2,<0.4.0', 'pandas>=1.4,<2.0.0']
 
 setup_kwargs = {
     'name': 'exasol-udf-mock-python',
@@ -23,7 +23,7 @@ setup_kwargs = {
     'packages': packages,
     'package_data': package_data,
     'install_requires': install_requires,
-    'python_requires': '>=3.6.1',
+    'python_requires': '>=3.8',
 }
 
 
