@@ -17,6 +17,10 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install Poetry
       uses: abatilo/actions-poetry@v2.0.0
+    - name: Install lapack for fixed Numpy
+        sudo apt-get update
+        sudo apt-get install -y libblas-dev #highly recommended for numpy from source, check https://numpy.org/devdocs/user/building.html#prerequisites
+        sudo apt-get install -y liblapack-dev #highly recommended for numpy from source, check https://numpy.org/devdocs/user/building.html#prerequisites
     - name: Install dependencies
       run: poetry install
     - name: Run pytest
