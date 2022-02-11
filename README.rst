@@ -101,5 +101,3 @@ feature and might get removed by later releases:
 
 * Only one instance of the UDF gets executed
 * No support for Python2, because Python2 is officially End of Life
-
-
