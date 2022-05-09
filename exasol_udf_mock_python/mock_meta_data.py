@@ -154,7 +154,7 @@ class MockMetaData:
         return self._input_type
 
     @property
-    def input_columns_count(self):
+    def input_column_count(self):
         return self._input_column_count
 
     @property
@@ -166,7 +166,7 @@ class MockMetaData:
         return self._output_type
 
     @property
-    def output_columns_count(self):
+    def output_column_count(self):
         return self._output_column_count
 
     @property

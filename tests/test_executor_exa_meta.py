@@ -62,3 +62,32 @@ def test_get_connection_in_init():
     exa = MockExaEnvironment(meta, connections={"TEST_CON": Connection(address="https://test.de")})
     result = executor.run([Group([(1,)])], exa)
     assert result == [Group([("https://test.de",)])]
+
+
+def test_exa_meta_column_count():
+    def udf_wrapper():
+        script_code = exa.meta.script_code
+
+        def run(ctx):
+            ctx.emit(script_code)
+
+    input_columns = [Column("t1", int, "INTEGER"),
+                     Column("t2", int, "INTEGER"),
+                     Column("t3", int, "INTEGER")]
+    output_columns = [Column("o1", str, "VARCHAR(2000)"),
+                      Column("o2", str, "VARCHAR(2000)")]
+    meta = MockMetaData(
+        script_code_wrapper_function=udf_wrapper,
+        input_type="SET",
+        input_columns=input_columns,
+        output_type="EMITS",
+        output_columns=output_columns
+    )
+    exa = MockExaEnvironment(meta)
+
+    assert exa.meta.input_column_count == len(input_columns)
+    assert len(exa.meta.input_columns) == len(input_columns)
+    assert exa.meta.input_columns == input_columns
+    assert exa.meta.output_column_count == len(output_columns)
+    assert len(exa.meta.output_columns) == len(output_columns)
+    assert exa.meta.output_columns == output_columns
