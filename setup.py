@@ -8,9 +8,7 @@ package_data = \
 {'': ['*']}
 
 install_requires = \
-['dill>=0.3.2,<0.4.0',
- 'numpy @ git+https://github.com/numpy/numpy.git@maintenance/1.19.x',
- 'pandas==1.1.5']
+['dill>=0.3.2,<0.4.0', 'numpy>=1.22,<2.0', 'pandas>=1.4,<2.0']
 
 setup_kwargs = {
     'name': 'exasol-udf-mock-python',
@@ -25,7 +23,7 @@ setup_kwargs = {
     'packages': packages,
     'package_data': package_data,
     'install_requires': install_requires,
-    'python_requires': '>=3.6.1',
+    'python_requires': '>=3.8',
 }
 
 

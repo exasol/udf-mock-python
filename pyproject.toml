@@ -17,9 +17,9 @@ homepage = "https://github.com/exasol/udf-mock-python"
 keywords = ['exasol', 'udf', 'mock', 'testing']
 
 [tool.poetry.dependencies]
-python = ">=3.6.1"
-pandas = "1.1.5"# last version with support for python 3.6
-numpy =  { git = "https://github.com/numpy/numpy.git", branch = "maintenance/1.19.x" } # last version with support for python 3.6 + latest security fixes
+python = ">=3.8"
+pandas = "^1.4"
+numpy =  "^1.22"
 dill = "^0.3.2"
 
 [tool.poetry.dev-dependencies]
