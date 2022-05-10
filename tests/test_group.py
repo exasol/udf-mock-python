@@ -1,4 +1,4 @@
-from collections import Iterable
+from collections.abc import Iterable
 
 from exasol_udf_mock_python.group import Group, IterableWithSize
 
