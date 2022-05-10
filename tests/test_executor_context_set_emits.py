@@ -1,5 +1,5 @@
 import pytest
-
+import unittest
 from exasol_udf_mock_python.column import Column
 from exasol_udf_mock_python.group import Group
 from exasol_udf_mock_python.mock_exa_environment import MockExaEnvironment
@@ -366,32 +366,56 @@ def test_emit_tuple_exception():
         result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
 
 
-def test_context_parameters():
+def test_access_inputs_by_index():
     def udf_wrapper():
         def run(ctx):
-            ctx.emit(ctx[0], ctx.t1)
-            ctx.emit(ctx[1], ctx.t2)
-            ctx.emit(ctx[2], ctx.t3)
+            ctx.emit(ctx[0])
+            ctx.emit(ctx[1])
+            ctx.emit(ctx[2])
 
     input_columns = [Column("t1", int, "INTEGER"),
                      Column("t2", int, "INTEGER"),
                      Column("t3", int, "INTEGER")]
-    output_columns = [Column("o1", int, "INTEGER"),
-                      Column("o2", int, "INTEGER")]
-    meta = MockMetaData(
-        script_code_wrapper_function=udf_wrapper,
-        input_type="SET",
-        input_columns=input_columns,
-        output_type="EMITS",
-        output_columns=output_columns
-    )
-    input_data = [(1, 2, 3), (4, 5, 6)]
-    exa = MockExaEnvironment(meta)
-    executor = UDFMockExecutor()
-    result = executor.run([Group(input_data)], exa)
-    for i, group in enumerate(result):
-        result_row = group.rows
-        assert len(result_row) == len(input_columns)
-        for j in range(len(result_row)):
-            assert len(result_row[j]) == len(output_columns)
-            assert input_data[i][j] == result_row[j][0] == result_row[j][1]
+    output_columns = [Column("o1", int, "INTEGER")]
+    for is_variadic in [True, False]:
+        meta = MockMetaData(
+            script_code_wrapper_function=udf_wrapper,
+            input_type="SET",
+            input_columns=input_columns,
+            output_type="EMITS",
+            output_columns=output_columns,
+            is_variadic=is_variadic
+        )
+        input_data = [(1, 2, 3), (4, 5, 6)]
+        exa = MockExaEnvironment(meta)
+        executor = UDFMockExecutor()
+        result = executor.run([Group(input_data)], exa)
+        for i, group in enumerate(result):
+            result_row = group.rows
+            assert len(result_row) == len(input_columns)
+            for j in range(len(result_row)):
+                assert len(result_row[j]) == len(output_columns)
+                assert input_data[i][j] == result_row[j][0]
+
+
+class InvalidAccessToVariadicInputs(unittest.TestCase):
+    def test_access_variadic_inputs_by_name(self):
+        def udf_wrapper():
+            def run(ctx):
+                ctx.emit(ctx.t1)
+
+        input_columns = [Column("t1", int, "INTEGER")]
+        output_columns = [Column("o1", int, "INTEGER")]
+        meta = MockMetaData(
+            script_code_wrapper_function=udf_wrapper,
+            input_type="SET",
+            input_columns=input_columns,
+            output_type="EMITS",
+            output_columns=output_columns,
+            is_variadic=True)
+
+        input_data = [(1,)]
+        exa = MockExaEnvironment(meta)
+        executor = UDFMockExecutor()
+        with self.assertRaises(RuntimeError):
+            result = executor.run([Group(input_data)], exa)

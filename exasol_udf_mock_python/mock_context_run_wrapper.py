@@ -9,11 +9,12 @@ def _disallowed_function(*args, **kw):
 
 class MockContextRunWrapper:
 
-    def __init__(
-            self, mock_context: MockContext, input_type: str, output_type: str):
+    def __init__(self, mock_context: MockContext, input_type: str,
+                 output_type: str, is_variadic: bool):
         self._output_type = output_type
         self._input_type = input_type
         self._mock_context = mock_context
+        self._is_variadic = is_variadic
         if self._output_type == "RETURNS":
             self.emit = _disallowed_function
         else:
@@ -28,6 +29,9 @@ class MockContextRunWrapper:
             self.size = self._mock_context.size
 
     def __getattr__(self, name):
+        if self._is_variadic:
+            raise RuntimeError(f"E-UDF-CL-SL-PYTHON-1085: Iterator has no "
+                               f"object with name '{name}'")
         return self._mock_context.__getattr__(name)
 
     def __getitem__(self, item):

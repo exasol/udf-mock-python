@@ -1,17 +1,19 @@
 from multiprocessing import Lock
 from typing import Dict, Any, Iterator, List, Union, Callable, Tuple
-
 from exasol_udf_mock_python.group import Group
 from exasol_udf_mock_python.mock_context import MockContext
 from exasol_udf_mock_python.mock_context_run_wrapper import MockContextRunWrapper
 from exasol_udf_mock_python.mock_exa_environment import MockExaEnvironment
 
+
 def _loop_groups(ctx:MockContext, exa:MockExaEnvironment, runfunc:Callable):
     while ctx._next_group():
         _wrapped_run(ctx, exa, runfunc)
 
-def _wrapped_run(ctx:MockContext, exa:MockExaEnvironment, runfunc:Callable):
-    wrapped_ctx = MockContextRunWrapper(ctx, exa.meta.input_type, exa.meta.output_type)
+
+def _wrapped_run(ctx:MockContext, exa: MockExaEnvironment, runfunc: Callable):
+    wrapped_ctx = MockContextRunWrapper(
+        ctx, exa.meta.input_type, exa.meta.output_type, exa.meta.is_variadic)
     if exa.meta.input_type == "SET":
         if exa.meta.output_type == "RETURNS":
             run_with_returns(ctx, runfunc, wrapped_ctx)
