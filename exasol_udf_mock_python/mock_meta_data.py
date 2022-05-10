@@ -1,9 +1,7 @@
 import re
+import dill
 import textwrap
 from typing import List
-
-import dill
-
 from exasol_udf_mock_python.column import Column
 
 
@@ -31,6 +29,13 @@ class MockMetaData:
             statement_id: int="123456789",
             memory_limit: int=4*1073741824,
             ):
+
+        assert input_type.upper() in ["SET", "SCALAR"]
+        assert output_type.upper() in ["EMITS", "RETURNS"]
+        if is_variadic:
+            for i in range(len(input_columns)):
+                assert str(i+1) == str(input_columns[i].name)
+
         self._script_language = "PYTHON3"
         self._script_name = script_name
         self._script_schema = script_schema

@@ -366,45 +366,77 @@ def test_emit_tuple_exception():
         result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
 
 
-def test_access_inputs_by_index():
+def test_access_variadic_inputs():
     def udf_wrapper():
         def run(ctx):
             ctx.emit(ctx[0])
             ctx.emit(ctx[1])
-            ctx.emit(ctx[2])
+            ctx.emit(ctx["2"])
+
+    input_columns = [Column("1", int, "INTEGER"),
+                     Column("2", int, "INTEGER"),
+                     Column("3", int, "INTEGER")]
+    output_columns = [Column("o1", int, "INTEGER")]
+    meta = MockMetaData(
+        script_code_wrapper_function=udf_wrapper,
+        input_type="SET",
+        input_columns=input_columns,
+        output_type="EMITS",
+        output_columns=output_columns,
+        is_variadic=True)
+
+    input_data = [(1, 2, 3), (4, 5, 6)]
+    exa = MockExaEnvironment(meta)
+    executor = UDFMockExecutor()
+    result = executor.run([Group(input_data)], exa)
+    for i, group in enumerate(result):
+        result_row = group.rows
+        assert len(result_row) == len(input_columns)
+        for j in range(len(result_row)):
+            assert len(result_row[j]) == len(output_columns)
+            assert input_data[i][j] == result_row[j][0]
+
+
+def test_access_non_variadic_inputs():
+    def udf_wrapper():
+        def run(ctx):
+            ctx.emit(ctx[0])
+            ctx.emit(ctx[1])
+            ctx.emit(ctx["t3"])
+            ctx.emit(ctx["4"])
 
     input_columns = [Column("t1", int, "INTEGER"),
                      Column("t2", int, "INTEGER"),
-                     Column("t3", int, "INTEGER")]
+                     Column("t3", int, "INTEGER"),
+                     Column("4", int, "INTEGER")]
     output_columns = [Column("o1", int, "INTEGER")]
-    for is_variadic in [True, False]:
-        meta = MockMetaData(
-            script_code_wrapper_function=udf_wrapper,
-            input_type="SET",
-            input_columns=input_columns,
-            output_type="EMITS",
-            output_columns=output_columns,
-            is_variadic=is_variadic
-        )
-        input_data = [(1, 2, 3), (4, 5, 6)]
-        exa = MockExaEnvironment(meta)
-        executor = UDFMockExecutor()
-        result = executor.run([Group(input_data)], exa)
-        for i, group in enumerate(result):
-            result_row = group.rows
-            assert len(result_row) == len(input_columns)
-            for j in range(len(result_row)):
-                assert len(result_row[j]) == len(output_columns)
-                assert input_data[i][j] == result_row[j][0]
+    meta = MockMetaData(
+        script_code_wrapper_function=udf_wrapper,
+        input_type="SET",
+        input_columns=input_columns,
+        output_type="EMITS",
+        output_columns=output_columns,
+        is_variadic=False)
+
+    input_data = [(1, 2, 3, 4), (5, 6, 7, 8)]
+    exa = MockExaEnvironment(meta)
+    executor = UDFMockExecutor()
+    result = executor.run([Group(input_data)], exa)
+    for i, group in enumerate(result):
+        result_row = group.rows
+        assert len(result_row) == len(input_columns)
+        for j in range(len(result_row)):
+            assert len(result_row[j]) == len(output_columns)
+            assert input_data[i][j] == result_row[j][0]
 
 
-class InvalidAccessToVariadicInputs(unittest.TestCase):
+class InvalidTestsForVariadicInputs(unittest.TestCase):
     def test_access_variadic_inputs_by_name(self):
         def udf_wrapper():
             def run(ctx):
                 ctx.emit(ctx.t1)
 
-        input_columns = [Column("t1", int, "INTEGER")]
+        input_columns = [Column("1", int, "INTEGER")]
         output_columns = [Column("o1", int, "INTEGER")]
         meta = MockMetaData(
             script_code_wrapper_function=udf_wrapper,
@@ -419,3 +451,88 @@ class InvalidAccessToVariadicInputs(unittest.TestCase):
         executor = UDFMockExecutor()
         with self.assertRaises(RuntimeError):
             result = executor.run([Group(input_data)], exa)
+
+    def test_invalid_variadic_input_columns_name(self):
+        def udf_wrapper():
+            def run(ctx):
+                ctx.emit(ctx[0])
+
+        invalid_input_columns_list = [
+            [Column("t1", int, "INTEGER")],
+            [Column("1", int, "INTEGER"), Column("3", int, "INTEGER")]
+        ]
+        for input_columns in invalid_input_columns_list:
+            output_columns = [Column("o1", int, "INTEGER")]
+            with self.assertRaises(AssertionError):
+                meta = MockMetaData(
+                    script_code_wrapper_function=udf_wrapper,
+                    input_type="SET",
+                    input_columns=input_columns,
+                    output_type="EMITS",
+                    output_columns=output_columns,
+                    is_variadic=True)
+
+                input_data = [(1,)]
+                exa = MockExaEnvironment(meta)
+                executor = UDFMockExecutor()
+                result = executor.run([Group(input_data)], exa)
+
+
+class InvalidTestsForNonVariadicInputs(unittest.TestCase):
+    def test_invalid_access_to_inputs(self):
+        def udf_wrapper():
+            def run(ctx):
+                ctx.emit(ctx["1"])
+
+        input_columns = [Column("t1", int, "INTEGER")]
+        output_columns = [Column("o1", int, "INTEGER")]
+
+        with self.assertRaises(RuntimeError):
+            meta = MockMetaData(
+                script_code_wrapper_function=udf_wrapper,
+                input_type="SET",
+                input_columns=input_columns,
+                output_type="EMITS",
+                output_columns=output_columns,
+                is_variadic=False)
+
+            input_data = [(1,)]
+            exa = MockExaEnvironment(meta)
+            executor = UDFMockExecutor()
+            result = executor.run([Group(input_data)], exa)
+
+
+class InvalidTestsForUDFTypes(unittest.TestCase):
+    def test_invalid_input_types(self):
+        def udf_wrapper():
+            def run(ctx):
+                ctx.emit(ctx.t1)
+
+        input_columns = [Column("1", int, "INTEGER")]
+        output_columns = [Column("o1", int, "INTEGER")]
+        for input_type in ["SETS", "SCALARS", "INVALID"]:
+            with self.assertRaises(AssertionError):
+                MockMetaData(
+                    script_code_wrapper_function=udf_wrapper,
+                    input_type=input_type,
+                    input_columns=input_columns,
+                    output_type="EMITS",
+                    output_columns=output_columns,
+                    is_variadic=True)
+
+    def test_invalid_output_types(self):
+        def udf_wrapper():
+            def run(ctx):
+                ctx.emit(ctx.t1)
+
+        input_columns = [Column("1", int, "INTEGER")]
+        output_columns = [Column("o1", int, "INTEGER")]
+        for output_types in ["EMIT", "RETURN", "INVALID"]:
+            with self.assertRaises(AssertionError):
+                MockMetaData(
+                    script_code_wrapper_function=udf_wrapper,
+                    input_type="SET",
+                    input_columns=input_columns,
+                    output_type=output_types,
+                    output_columns=output_columns,
+                    is_variadic=True)

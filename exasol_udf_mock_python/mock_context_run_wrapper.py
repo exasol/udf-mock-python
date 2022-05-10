@@ -29,10 +29,30 @@ class MockContextRunWrapper:
             self.size = self._mock_context.size
 
     def __getattr__(self, name):
+        """
+        Variadic UDFs' columns are only integer values. Since integers are not
+        valid identifier in python, this method cannot be used by Variadic UDFs.
+        """
         if self._is_variadic:
             raise RuntimeError(f"E-UDF-CL-SL-PYTHON-1085: Iterator has no "
                                f"object with name '{name}'")
         return self._mock_context.__getattr__(name)
 
     def __getitem__(self, item):
-        return self._mock_context._data[item]
+        """
+        Variadic UDFs can retrieve items by index. The index value can be given
+        as an integer (e.g. ctx[1]) or as a string integer (e.g. ctx["1"]).
+
+        Non-variadic UDFs can retrieve items by index, that can be either an
+        integer (e.g. ctx[1]) or a column name (e.g. ctx["col_name"]). They do
+        not accept string integers as index.
+        """
+        item = int(item) if self._is_variadic else item
+        if isinstance(item, int):
+            return self._mock_context._data[item]
+        else:
+            try:
+                return self.__getattr__(item)
+            except KeyError:
+                raise RuntimeError(f"E-UDF-CL-SL-PYTHON-1082: Column with name "
+                                   f"'{item}' does not exist")
