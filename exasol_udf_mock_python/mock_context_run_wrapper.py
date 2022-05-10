@@ -3,11 +3,14 @@ from exasol_udf_mock_python.mock_context import MockContext
 
 def _disallowed_function(*args, **kw):
     raise RuntimeError(
-        "F-UDF-CL-SL-PYTHON-1107: next(), reset() and emit() functions are not allowed in scalar context")
+        "F-UDF-CL-SL-PYTHON-1107: next(), reset() and emit() "
+        "functions are not allowed in scalar context")
+
 
 class MockContextRunWrapper:
 
-    def __init__(self, mock_context: MockContext, input_type: str, output_type: str):
+    def __init__(
+            self, mock_context: MockContext, input_type: str, output_type: str):
         self._output_type = output_type
         self._input_type = input_type
         self._mock_context = mock_context
@@ -24,6 +27,8 @@ class MockContextRunWrapper:
             self.get_dataframe = self._mock_context.get_dataframe
             self.size = self._mock_context.size
 
-
     def __getattr__(self, name):
         return self._mock_context.__getattr__(name)
+
+    def __getitem__(self, item):
+        return self._mock_context._data[item]

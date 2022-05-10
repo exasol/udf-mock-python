@@ -364,3 +364,34 @@ def test_emit_tuple_exception():
     exa = MockExaEnvironment(meta)
     with pytest.raises(TypeError):
         result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+
+
+def test_context_parameters():
+    def udf_wrapper():
+        def run(ctx):
+            ctx.emit(ctx[0], ctx.t1)
+            ctx.emit(ctx[1], ctx.t2)
+            ctx.emit(ctx[2], ctx.t3)
+
+    input_columns = [Column("t1", int, "INTEGER"),
+                     Column("t2", int, "INTEGER"),
+                     Column("t3", int, "INTEGER")]
+    output_columns = [Column("o1", int, "INTEGER"),
+                      Column("o2", int, "INTEGER")]
+    meta = MockMetaData(
+        script_code_wrapper_function=udf_wrapper,
+        input_type="SET",
+        input_columns=input_columns,
+        output_type="EMITS",
+        output_columns=output_columns
+    )
+    input_data = [(1, 2, 3), (4, 5, 6)]
+    exa = MockExaEnvironment(meta)
+    executor = UDFMockExecutor()
+    result = executor.run([Group(input_data)], exa)
+    for i, group in enumerate(result):
+        result_row = group.rows
+        assert len(result_row) == len(input_columns)
+        for j in range(len(result_row)):
+            assert len(result_row[j]) == len(output_columns)
+            assert input_data[i][j] == result_row[j][0] == result_row[j][1]
