@@ -31,7 +31,7 @@ class MockContextRunWrapper:
     def __getattr__(self, name):
         """
         Variadic UDFs' columns are only integer values. Since integers are not
-        valid identifier in python, this method cannot be used by Variadic UDFs.
+        valid identifier in python, this method cannot be used by variadic UDFs.
         """
         if self._is_variadic:
             raise RuntimeError(f"E-UDF-CL-SL-PYTHON-1085: Iterator has no "
@@ -52,7 +52,7 @@ class MockContextRunWrapper:
             return self._mock_context._data[item]
         else:
             try:
-                return self.__getattr__(item)
+                return self._mock_context.__getattr__(item)
             except KeyError:
                 raise RuntimeError(f"E-UDF-CL-SL-PYTHON-1082: Column with name "
                                    f"'{item}' does not exist")
