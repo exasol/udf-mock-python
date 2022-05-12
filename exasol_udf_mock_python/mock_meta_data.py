@@ -13,7 +13,7 @@ class MockMetaData:
             input_type: str,
             output_columns: List[Column],
             output_type: str,
-            is_variadic: bool = False,
+            is_variadic_input: bool = False,
             script_name: str="TEST_UDF",
             script_schema: str="TEST_SCHEMA",
             current_user: str="sys",
@@ -32,7 +32,7 @@ class MockMetaData:
 
         assert input_type.upper() in ["SET", "SCALAR"]
         assert output_type.upper() in ["EMITS", "RETURNS"]
-        if is_variadic:
+        if is_variadic_input:
             for i in range(len(input_columns)):
                 assert str(i+1) == str(input_columns[i].name)
 
@@ -60,7 +60,7 @@ class MockMetaData:
         self._validate_column_defintions(output_columns)
         self._output_column_count = len(output_columns)
         self._output_columns = output_columns
-        self._is_variadic = is_variadic
+        self._is_variadic_input = is_variadic_input
 
     def _extract_script_code(self, script_code_wrapper_function):
         function_code = textwrap.dedent(dill.source.getsource(script_code_wrapper_function))
@@ -181,8 +181,8 @@ class MockMetaData:
         return self._output_columns
 
     @property
-    def is_variadic(self):
-        return self._is_variadic
+    def is_variadic_input(self):
+        return self._is_variadic_input
 
     def __repr__(self):
         return str(self.__class__) + ": " + str(self.__dict__)

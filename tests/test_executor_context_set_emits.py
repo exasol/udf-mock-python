@@ -383,7 +383,7 @@ def test_access_variadic_inputs():
         input_columns=input_columns,
         output_type="EMITS",
         output_columns=output_columns,
-        is_variadic=True)
+        is_variadic_input=True)
 
     input_data = [(1, 2, 3), (4, 5, 6)]
     exa = MockExaEnvironment(meta)
@@ -416,7 +416,7 @@ def test_access_non_variadic_inputs():
         input_columns=input_columns,
         output_type="EMITS",
         output_columns=output_columns,
-        is_variadic=False)
+        is_variadic_input=False)
 
     input_data = [(1, 2, 3, 4), (5, 6, 7, 8)]
     exa = MockExaEnvironment(meta)
@@ -444,7 +444,7 @@ class InvalidTestsForVariadicInputs(unittest.TestCase):
             input_columns=input_columns,
             output_type="EMITS",
             output_columns=output_columns,
-            is_variadic=True)
+            is_variadic_input=True)
 
         input_data = [(1,)]
         exa = MockExaEnvironment(meta)
@@ -470,7 +470,7 @@ class InvalidTestsForVariadicInputs(unittest.TestCase):
                     input_columns=input_columns,
                     output_type="EMITS",
                     output_columns=output_columns,
-                    is_variadic=True)
+                    is_variadic_input=True)
 
                 input_data = [(1,)]
                 exa = MockExaEnvironment(meta)
@@ -494,7 +494,7 @@ class InvalidTestsForNonVariadicInputs(unittest.TestCase):
                 input_columns=input_columns,
                 output_type="EMITS",
                 output_columns=output_columns,
-                is_variadic=False)
+                is_variadic_input=False)
 
             input_data = [(1,)]
             exa = MockExaEnvironment(meta)
@@ -518,7 +518,7 @@ class InvalidTestsForUDFTypes(unittest.TestCase):
                     input_columns=input_columns,
                     output_type="EMITS",
                     output_columns=output_columns,
-                    is_variadic=True)
+                    is_variadic_input=True)
 
     def test_invalid_output_types(self):
         def udf_wrapper():
@@ -535,4 +535,4 @@ class InvalidTestsForUDFTypes(unittest.TestCase):
                     input_columns=input_columns,
                     output_type=output_types,
                     output_columns=output_columns,
-                    is_variadic=True)
+                    is_variadic_input=True)

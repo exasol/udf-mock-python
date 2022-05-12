@@ -10,11 +10,11 @@ def _disallowed_function(*args, **kw):
 class MockContextRunWrapper:
 
     def __init__(self, mock_context: MockContext, input_type: str,
-                 output_type: str, is_variadic: bool):
+                 output_type: str, is_variadic_input: bool):
         self._output_type = output_type
         self._input_type = input_type
         self._mock_context = mock_context
-        self._is_variadic = is_variadic
+        self._is_variadic_input = is_variadic_input
         if self._output_type == "RETURNS":
             self.emit = _disallowed_function
         else:
@@ -33,7 +33,7 @@ class MockContextRunWrapper:
         Variadic UDFs' columns are only integer values. Since integers are not
         valid identifier in python, this method cannot be used by variadic UDFs.
         """
-        if self._is_variadic:
+        if self._is_variadic_input:
             raise RuntimeError(f"E-UDF-CL-SL-PYTHON-1085: Iterator has no "
                                f"object with name '{name}'")
         return self._mock_context.__getattr__(name)
@@ -47,7 +47,7 @@ class MockContextRunWrapper:
         integer (e.g. ctx[1]) or a column name (e.g. ctx["col_name"]). They do
         not accept string integers as index.
         """
-        item = int(item) if self._is_variadic else item
+        item = int(item) if self._is_variadic_input else item
         if isinstance(item, int):
             return self._mock_context._data[item]
         else:

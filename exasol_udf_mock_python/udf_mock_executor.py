@@ -13,7 +13,7 @@ def _loop_groups(ctx:MockContext, exa:MockExaEnvironment, runfunc:Callable):
 
 def _wrapped_run(ctx:MockContext, exa: MockExaEnvironment, runfunc: Callable):
     wrapped_ctx = MockContextRunWrapper(
-        ctx, exa.meta.input_type, exa.meta.output_type, exa.meta.is_variadic)
+        ctx, exa.meta.input_type, exa.meta.output_type, exa.meta.is_variadic_input)
     if exa.meta.input_type == "SET":
         if exa.meta.output_type == "RETURNS":
             run_with_returns(ctx, runfunc, wrapped_ctx)
