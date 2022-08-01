@@ -61,12 +61,13 @@ class MockContext(UDFContext):
             raise RuntimeError("get_dataframe() parameter 'start_col' must be an integer >= 0")
         if self._data is None:
             return None
-        columns_ = [column.name for column in self._metadata.input_columns]
+        columns_ = [column.name for column in self._metadata.input_columns[start_col:]]
 
         i = 0
         df = None
         while num_rows == 'all' or i < num_rows:
-            df_current = pd.DataFrame.from_records([self._data], columns=columns_)
+            df_current = pd.DataFrame.from_records(
+                [self._data[start_col:]], columns=columns_)
             if df is None:
                 df = df_current
             else:

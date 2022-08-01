@@ -311,6 +311,7 @@ def test_get_dataframe_start_col_negative():
     with pytest.raises(RuntimeError) as excinfo:
         result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
 
+
 def test_get_dataframe_start_col_0():
     def udf_wrapper():
         def run(ctx):
@@ -329,23 +330,27 @@ def test_get_dataframe_start_col_0():
     result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
     assert result == [Group([(1,), ])]
 
+
 def test_get_dataframe_start_col_positive():
     def udf_wrapper():
         def run(ctx):
             df = ctx.get_dataframe(num_rows=1, start_col=1)
             ctx.emit(df)
 
-    executor = UDFMockExecutor()
     meta = MockMetaData(
         script_code_wrapper_function=udf_wrapper,
         input_type="SET",
-        input_columns=[Column("t", int, "INTEGER")],
+        input_columns=[
+            Column("t1", int, "INTEGER"),
+            Column("t2", int, "INTEGER")],
         output_type="EMITS",
         output_columns=[Column("t", int, "INTEGER")]
     )
+    executor = UDFMockExecutor()
     exa = MockExaEnvironment(meta)
-    result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
-    assert result == [Group([(1,), ])]
+    result = executor.run([Group([(1, -1), (2, -2), (3, -3), (4, -4)])], exa)
+    assert result == [Group([(-1,), ])]
+
 
 def test_emit_tuple_exception():
     def udf_wrapper():
