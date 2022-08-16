@@ -378,9 +378,9 @@ def test_access_variadic_inputs():
             ctx.emit(ctx[1])
             ctx.emit(ctx["2"])
 
-    input_columns = [Column("1", int, "INTEGER"),
-                     Column("2", int, "INTEGER"),
-                     Column("3", int, "INTEGER")]
+    input_columns = [Column("0", int, "INTEGER"),
+                     Column("1", int, "INTEGER"),
+                     Column("2", int, "INTEGER")]
     output_columns = [Column("o1", int, "INTEGER")]
     meta = MockMetaData(
         script_code_wrapper_function=udf_wrapper,
@@ -443,19 +443,15 @@ class InvalidTestsForVariadicInputs(unittest.TestCase):
 
         input_columns = [Column("1", int, "INTEGER")]
         output_columns = [Column("o1", int, "INTEGER")]
-        meta = MockMetaData(
-            script_code_wrapper_function=udf_wrapper,
-            input_type="SET",
-            input_columns=input_columns,
-            output_type="EMITS",
-            output_columns=output_columns,
-            is_variadic_input=True)
+        with self.assertRaises(AssertionError):
+            meta = MockMetaData(
+                script_code_wrapper_function=udf_wrapper,
+                input_type="SET",
+                input_columns=input_columns,
+                output_type="EMITS",
+                output_columns=output_columns,
+                is_variadic_input=True)
 
-        input_data = [(1,)]
-        exa = MockExaEnvironment(meta)
-        executor = UDFMockExecutor()
-        with self.assertRaises(RuntimeError):
-            result = executor.run([Group(input_data)], exa)
 
     def test_invalid_variadic_input_columns_name(self):
         def udf_wrapper():

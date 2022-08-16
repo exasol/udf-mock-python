@@ -34,7 +34,7 @@ class MockMetaData:
         assert output_type.upper() in ["EMITS", "RETURNS"]
         if is_variadic_input:
             for i in range(len(input_columns)):
-                assert str(i+1) == str(input_columns[i].name)
+                assert str(i) == str(input_columns[i].name)
 
         self._script_language = "PYTHON3"
         self._script_name = script_name
