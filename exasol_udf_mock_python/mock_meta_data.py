@@ -14,27 +14,27 @@ class MockMetaData:
             output_columns: List[Column],
             output_type: str,
             is_variadic_input: bool = False,
-            script_name: str="TEST_UDF",
-            script_schema: str="TEST_SCHEMA",
-            current_user: str="sys",
-            current_schema: str="TEST_SCHEMA",
-            scope_user: str="sys",
-            connection_id: str="123123",
-            database_name: str="TEST_DB",
-            database_version: str="7.0.0",
-            node_count: int="1",
-            node_id: int="0",
-            vm_id: int="123",
-            session_id: int="123456789",
-            statement_id: int="123456789",
-            memory_limit: int=4*1073741824,
-            ):
+            script_name: str = "TEST_UDF",
+            script_schema: str = "TEST_SCHEMA",
+            current_user: str = "sys",
+            current_schema: str = "TEST_SCHEMA",
+            scope_user: str = "sys",
+            connection_id: str = "123123",
+            database_name: str = "TEST_DB",
+            database_version: str = "7.0.0",
+            node_count: int = "1",
+            node_id: int = "0",
+            vm_id: int = "123",
+            session_id: int = "123456789",
+            statement_id: int = "123456789",
+            memory_limit: int = 4 * 1073741824,
+    ):
 
         assert input_type.upper() in ["SET", "SCALAR"]
         assert output_type.upper() in ["EMITS", "RETURNS"]
         if is_variadic_input:
-            for i in range(len(input_columns)):
-                assert str(i+1) == str(input_columns[i].name)
+            assert all([str(i) == str(column.name)
+                        for i, column in enumerate(input_columns)])
 
         self._script_language = "PYTHON3"
         self._script_name = script_name
