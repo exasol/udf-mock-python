@@ -2,7 +2,7 @@
 
 branch="$(git rev-parse --abbrev-ref HEAD)"
 
-if [ "$branch" = "master" ]; then
-  echo "You can't commit directly to master branch"
+if [ "$branch" = "main" ]; then
+  echo "You can't commit directly to main branch"
   exit 1
 fi
