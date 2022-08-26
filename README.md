@@ -10,9 +10,11 @@ In any case, you need to verify your UDFs with integrations test inside the data
 
 ## Getting started
 
+**Attention:** We changed the default branch to main and the master branch is deprecated.
+
 ### Installing via pip
 ```
-pip install git+https://github.com/exasol/udf-mock-python.git@master
+pip install git+https://github.com/exasol/udf-mock-python.git@main
 ```
 
 ### Installing via poetry
@@ -20,7 +22,7 @@ Add it to your `tool.poetry.dependencies` or `tool.poetry.dev-dependencies`
 
 ```
 [tool.poetry.dev-dependencies]
-exasol-udf-mock-python = { git = "https://github.com/exasol/udf-mock-python.git", branch = "master" }
+exasol-udf-mock-python = { git = "https://github.com/exasol/udf-mock-python.git", branch = "main" }
 ...
 ```
 
