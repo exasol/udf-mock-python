@@ -13,6 +13,8 @@ In any case, you need to verify your UDFs with integrations test inside the data
 Getting started
 ---------------
 
+**Attention:** We changed the default branch to main and the master branch is deprecated.
+
 Installing via pip
 ^^^^^^^^^^^^^^^^^^
 
