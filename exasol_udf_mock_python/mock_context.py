@@ -1,4 +1,4 @@
-from typing import List, Tuple, Iterator, Any, Optional, Union
+from typing import List, Tuple, Iterator, Iterable, Any, Optional, Union
 
 import pandas as pd
 
@@ -101,13 +101,27 @@ class StandaloneMockContext(UDFContext):
         :param  inp:        Input rows for a SET UDF or parameters for a SCALAR one.
                             In the former case the input object must be an iterable of rows. This, for example,
                             can be a Group object. It must implement the __len__ method. Each data row must be
-                            an indexable container, e.g. a tuple. In the SCALAR case the input should also be
-                            an indexable container.
+                            an indexable container, e.g. a tuple.
+                            In the SCALAR case the input can be a scalar value, or tuple. This can also be wrapped
+                            in an iterable container, similar to the SET case.
 
         :param metadata:    The mock metadata object.
         """
 
-        self._input = inp if metadata.input_type.upper() == 'SET' else [inp]
+        if metadata.input_type.upper() == 'SCALAR':
+            # Figure out if the SCALAR parameters are provided as a scalar value or a tuple
+            # and also if there is a wrapping container around. In any case, this should be
+            # converted to a form [(param1[, param2, ...)]
+            if isinstance(inp, Iterable) and not isinstance(inp, str):
+                row1 = next(iter(inp))
+                if isinstance(row1, Iterable) and not isinstance(row1, str):
+                    self._input = inp
+                else:
+                    self._input = [inp]
+            else:
+                self._input = [(inp,)]
+        else:
+            self._input = inp
         self._metadata = metadata
         self._data = None       # type: Optional[Any]
         self._iter = None       # type: Optional[Iterator[Tuple[Any, ...]]]
