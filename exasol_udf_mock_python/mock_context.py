@@ -124,7 +124,7 @@ class StandaloneMockContext(UDFContext):
             self._input = inp
         self._metadata = metadata
         self._data = None       # type: Optional[Any]
-        self._iter = None       # type: Optional[Iterator[Tuple[Any, ...]]]
+        self._iter: Optional[Iterator[Tuple[Any, ...]]] = None
         self._name_position_map = \
             {column.name: position
              for position, column
