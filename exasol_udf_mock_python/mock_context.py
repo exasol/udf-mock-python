@@ -30,7 +30,7 @@ class MockContext(UDFContext):
         """ Mock context for the current group """
         self._current:Optional[StandaloneMockContext] = None
         """ Output for all groups """
-        self._previous_groups = []        # type: List[Group]
+        self._previous_groups: List[Group] = []
 
     def _next_group(self) -> bool:
         """
