@@ -28,7 +28,7 @@ class MockContext(UDFContext):
         self._input_groups = input_groups
         self._metadata = metadata
         """ Mock context for the current group """
-        self._current = None            # type: Optional[StandaloneMockContext]
+        self._current:Optional[StandaloneMockContext] = None
         """ Output for all groups """
         self._previous_groups = []        # type: List[Group]
 
