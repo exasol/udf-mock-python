@@ -1,4 +1,5 @@
 from typing import List, Tuple, Iterator, Iterable, Any, Optional, Union
+from functools import wraps
 
 import pandas as pd
 
@@ -14,8 +15,11 @@ class MockContext(UDFContext):
     This class allows iterating over groups. The functionality of the UDF Context are applicable
     for the current input group.
 
-    Call `_next_group` to iterate over groups. The `_output_groups` property provides the emit
+    Call `next_group` to iterate over groups. The `output_groups` property provides the emit
     output for all groups iterated so far including the output for the current group.
+
+    Calling any function of the UDFContext interface when the group iterator has passed the end
+    or before the first call to the `next_group` is illegal and will cause a RuntimeException.
     """
 
     def __init__(self, input_groups: Iterator[Group], metadata: MockMetaData):
@@ -28,20 +32,20 @@ class MockContext(UDFContext):
         self._input_groups = input_groups
         self._metadata = metadata
         """ Mock context for the current group """
-        self._current:Optional[StandaloneMockContext] = None
+        self._current_context: Optional[StandaloneMockContext] = None
         """ Output for all groups """
-        self._previous_groups: List[Group] = []
+        self._previous_output: List[Group] = []
 
-    def _next_group(self) -> bool:
+    def next_group(self) -> bool:
         """
         Moves group iterator to the next group.
         Returns False if the iterator gets beyond the last group. Returns True otherwise.
         """
 
         # Save output of the current group
-        if self._current is not None:
-            self._previous_groups.append(Group(self._current.output))
-            self._current = None
+        if self._current_context is not None:
+            self._previous_output.append(Group(self._current_context.output))
+            self._current_context = None
 
         # Try get to the next input group
         try:
@@ -52,40 +56,75 @@ class MockContext(UDFContext):
             raise RuntimeError("Empty input groups are not allowed")
 
         # Create Mock Context for the new input group
-        self._current = StandaloneMockContext(input_group, self._metadata)
+        self._current_context = StandaloneMockContext(input_group, self._metadata)
         return True
 
     @property
-    def _output_groups(self):
+    def output_groups(self):
         """
         Output of all groups including the current one.
         """
-        if self._current is None:
-            return self._previous_groups
+        if self._current_context is None:
+            return self._previous_output
         else:
-            groups = list(self._previous_groups)
-            groups.append(Group(self._current.output))
+            groups = list(self._previous_output)
+            groups.append(Group(self._current_context.output))
             return groups
 
+    @staticmethod
+    def _check_context(f):
+        @wraps(f)
+        def wrapper(self, *args, **kwargs):
+            if self._current_context is None:
+                raise RuntimeError('Calling UDFContext interface when the current group context '
+                                   'is invalid is disallowed')
+            return f(self, *args, **kwargs)
+
+        return wrapper
+
+    @_check_context
     def __getattr__(self, name):
-        return None if self._current is None else getattr(self._current, name)
+        return getattr(self._current_context, name)
 
+    @_check_context
     def get_dataframe(self, num_rows: Union[str, int], start_col: int = 0) -> Optional[pd.DataFrame]:
-        return None if self._current is None else self._current.get_dataframe(num_rows, start_col)
+        return self._current_context.get_dataframe(num_rows, start_col)
 
+    @_check_context
     def next(self, reset: bool = False) -> bool:
-        return False if self._current is None else self._current.next(reset)
+        return self._current_context.next(reset)
 
+    @_check_context
     def size(self) -> int:
-        return 0 if self._current is None else self._current.size()
+        return self._current_context.size()
 
+    @_check_context
     def reset(self) -> None:
-        if self._current is not None:
-            self._current.reset()
+        self._current_context.reset()
 
-    def emit(self, *args):
-        if self._current is not None:
-            self._current.emit(*args)
+    @_check_context
+    def emit(self, *args) -> None:
+        self._current_context.emit(*args)
+
+
+def get_scalar_input(inp: Any) -> Iterable[Tuple[Any, ...]]:
+    """
+    Figures out if the SCALAR parameters are provided as a scalar value or a tuple
+    and also if there is a wrapping container around.
+    Unless the parameters are already in a wrapping container returns parameters as a tuple wrapped
+    into a one-item list, e.g [(param1[, param2, ...)]. Otherwise, returns the original input.
+
+    :param  inp:        Input parameters.
+    """
+
+    if isinstance(inp, Iterable) and not isinstance(inp, str):
+        row1 = next(iter(inp))
+        if isinstance(row1, Iterable) and not isinstance(row1, str):
+            return inp
+        else:
+            return [inp]
+    else:
+        return [(inp,)]
 
 
 class StandaloneMockContext(UDFContext):
@@ -93,7 +132,7 @@ class StandaloneMockContext(UDFContext):
     Implementation of generic UDF Mock Context interface a SCALAR UDF or a SET UDF with no groups.
 
     For Emit UDFs the output in the form of the list of tuples can be
-    access by reading the `output` property.
+    accessed by reading the `output` property.
     """
 
     def __init__(self, inp: Any, metadata: MockMetaData):
@@ -107,19 +146,8 @@ class StandaloneMockContext(UDFContext):
 
         :param metadata:    The mock metadata object.
         """
-
         if metadata.input_type.upper() == 'SCALAR':
-            # Figure out if the SCALAR parameters are provided as a scalar value or a tuple
-            # and also if there is a wrapping container around. In any case, this should be
-            # converted to a form [(param1[, param2, ...)]
-            if isinstance(inp, Iterable) and not isinstance(inp, str):
-                row1 = next(iter(inp))
-                if isinstance(row1, Iterable) and not isinstance(row1, str):
-                    self._input = inp
-                else:
-                    self._input = [inp]
-            else:
-                self._input = [(inp,)]
+            self._input = get_scalar_input(inp)
         else:
             self._input = inp
         self._metadata = metadata
@@ -176,7 +204,7 @@ class StandaloneMockContext(UDFContext):
             try:
                 new_data = next(self._iter)
                 self._data = new_data
-                self._validate_tuples(self._data, self._metadata.input_columns)
+                self.validate_emit(self._data, self._metadata.input_columns)
                 return True
             except StopIteration as e:
                 self._data = None
@@ -195,11 +223,11 @@ class StandaloneMockContext(UDFContext):
         else:
             tuples = [args]
         for row in tuples:
-            self._validate_tuples(row, self._metadata.output_columns)
+            self.validate_emit(row, self._metadata.output_columns)
         self._output.extend(tuples)
 
     @staticmethod
-    def _validate_tuples(row: Tuple, columns: List[Column]):
+    def validate_emit(row: Tuple, columns: List[Column]):
         if len(row) != len(columns):
             raise Exception(f"row {row} has not the same number of values as columns are defined")
         for i, column in enumerate(columns):

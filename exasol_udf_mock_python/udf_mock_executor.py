@@ -7,7 +7,7 @@ from exasol_udf_mock_python.mock_exa_environment import MockExaEnvironment
 
 
 def _loop_groups(ctx:MockContext, exa:MockExaEnvironment, runfunc:Callable):
-    while ctx._next_group():
+    while ctx.next_group():
         _wrapped_run(ctx, exa, runfunc)
 
 
@@ -77,4 +77,4 @@ class UDFMockExecutor:
             finally:
                 if "cleanup" in exec_globals:
                     self._exec_cleanup(exec_globals)
-            return ctx._output_groups
+            return ctx.output_groups

@@ -70,12 +70,12 @@ def test_next(context_set_emits):
 
 
 def test_next_end(context_set_emits):
-    assert context_set_emits.next()
+    context_set_emits.next()
     assert not context_set_emits.next()
 
 
 def test_reset(context_set_emits):
-    assert context_set_emits.next()
+    context_set_emits.next()
     context_set_emits.reset()
     assert context_set_emits.t1 == 5
     assert context_set_emits.t2 == 'abc'
@@ -85,17 +85,17 @@ def test_size(context_set_emits):
     assert context_set_emits.size() == 2
 
 
-def test_validate_tuples_good(meta_set_emits):
-    StandaloneMockContext._validate_tuples((10, 'fish'), meta_set_emits.output_columns)
+def test_validate_emit_good(meta_set_emits):
+    StandaloneMockContext.validate_emit((10, 'fish'), meta_set_emits.output_columns)
 
 
-def test_validate_tuples_bad(meta_set_emits):
+def test_validate_emit_bad(meta_set_emits):
     with pytest.raises(Exception):
-        StandaloneMockContext._validate_tuples((10,), meta_set_emits.output_columns)
+        StandaloneMockContext.validate_emit((10,), meta_set_emits.output_columns)
     with pytest.raises(Exception):
-        StandaloneMockContext._validate_tuples((10, 'fish', 4.5), meta_set_emits.output_columns)
+        StandaloneMockContext.validate_emit((10, 'fish', 4.5), meta_set_emits.output_columns)
     with pytest.raises(Exception):
-        StandaloneMockContext._validate_tuples((10., 'fish'), meta_set_emits.output_columns)
+        StandaloneMockContext.validate_emit((10., 'fish'), meta_set_emits.output_columns)
 
 
 def test_emit_df(context_set_emits):
