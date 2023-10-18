@@ -9,6 +9,21 @@ from exasol_udf_mock_python.mock_meta_data import MockMetaData
 from exasol_udf_mock_python.udf_context import UDFContext
 
 
+def check_context(f):
+    """
+    Decorator checking that a MockContext object has valid current group context.
+    Raises a RuntimeError if this is not the case.
+    """
+    @wraps(f)
+    def wrapper(self, *args, **kwargs):
+        if self.no_context:
+            raise RuntimeError('Calling UDFContext interface when the current group context '
+                               'is invalid is disallowed')
+        return f(self, *args, **kwargs)
+
+    return wrapper
+
+
 class MockContext(UDFContext):
     """
     Implementation of generic UDF Mock Context interface for a SET UDF with groups.
@@ -35,6 +50,11 @@ class MockContext(UDFContext):
         self._current_context: Optional[StandaloneMockContext] = None
         """ Output for all groups """
         self._previous_output: List[Group] = []
+
+    @property
+    def no_context(self) -> bool:
+        """Returns True if the current group context is invalid"""
+        return self._current_context is None
 
     def next_group(self) -> bool:
         """
@@ -71,38 +91,27 @@ class MockContext(UDFContext):
             groups.append(Group(self._current_context.output))
             return groups
 
-    @staticmethod
-    def _check_context(f):
-        @wraps(f)
-        def wrapper(self, *args, **kwargs):
-            if self._current_context is None:
-                raise RuntimeError('Calling UDFContext interface when the current group context '
-                                   'is invalid is disallowed')
-            return f(self, *args, **kwargs)
-
-        return wrapper
-
-    @_check_context
+    @check_context
     def __getattr__(self, name):
         return getattr(self._current_context, name)
 
-    @_check_context
+    @check_context
     def get_dataframe(self, num_rows: Union[str, int], start_col: int = 0) -> Optional[pd.DataFrame]:
         return self._current_context.get_dataframe(num_rows, start_col)
 
-    @_check_context
+    @check_context
     def next(self, reset: bool = False) -> bool:
         return self._current_context.next(reset)
 
-    @_check_context
+    @check_context
     def size(self) -> int:
         return self._current_context.size()
 
-    @_check_context
+    @check_context
     def reset(self) -> None:
         self._current_context.reset()
 
-    @_check_context
+    @check_context
     def emit(self, *args) -> None:
         self._current_context.emit(*args)
 
