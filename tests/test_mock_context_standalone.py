@@ -3,7 +3,7 @@ import pandas as pd
 
 from exasol_udf_mock_python.column import Column
 from exasol_udf_mock_python.mock_meta_data import MockMetaData
-from exasol_udf_mock_python.mock_context import StandaloneMockContext
+from exasol_udf_mock_python.mock_context import StandaloneMockContext, validate_emit
 
 
 def udf_wrapper():
@@ -86,16 +86,16 @@ def test_size(context_set_emits):
 
 
 def test_validate_emit_good(meta_set_emits):
-    StandaloneMockContext.validate_emit((10, 'fish'), meta_set_emits.output_columns)
+    validate_emit((10, 'fish'), meta_set_emits.output_columns)
 
 
 def test_validate_emit_bad(meta_set_emits):
     with pytest.raises(Exception):
-        StandaloneMockContext.validate_emit((10,), meta_set_emits.output_columns)
+        validate_emit((10,), meta_set_emits.output_columns)
     with pytest.raises(Exception):
-        StandaloneMockContext.validate_emit((10, 'fish', 4.5), meta_set_emits.output_columns)
+        validate_emit((10, 'fish', 4.5), meta_set_emits.output_columns)
     with pytest.raises(Exception):
-        StandaloneMockContext.validate_emit((10., 'fish'), meta_set_emits.output_columns)
+        validate_emit((10., 'fish'), meta_set_emits.output_columns)
 
 
 def test_emit_df(context_set_emits):

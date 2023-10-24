@@ -24,6 +24,23 @@ def check_context(f):
     return wrapper
 
 
+def validate_emit(row: Tuple, columns: List[Column]):
+    """
+    Validates that a data row to be emitted corresponds to the definition of the output columns.
+    The number of elements in the row should match the number of columns and the type of each
+    element should match the type of the correspondent column. Raises a ValueError if the first
+    condition is false or a TypeError if the second condition is false.
+
+    :param row:         Data row
+    :param columns:     Column definition.
+    """
+    if len(row) != len(columns):
+        raise ValueError(f"row {row} has not the same number of values as columns are defined")
+    for i, column in enumerate(columns):
+        if row[i] is not None and not isinstance(row[i], column.type):
+            raise TypeError(f"Value {row[i]} ({type(row[i])}) at position {i} is not a {column.type}")
+
+
 class MockContext(UDFContext):
     """
     Implementation of generic UDF Mock Context interface for a SET UDF with groups.
@@ -213,7 +230,7 @@ class StandaloneMockContext(UDFContext):
             try:
                 new_data = next(self._iter)
                 self._data = new_data
-                self.validate_emit(self._data, self._metadata.input_columns)
+                validate_emit(self._data, self._metadata.input_columns)
                 return True
             except StopIteration as e:
                 self._data = None
@@ -232,13 +249,5 @@ class StandaloneMockContext(UDFContext):
         else:
             tuples = [args]
         for row in tuples:
-            self.validate_emit(row, self._metadata.output_columns)
+            validate_emit(row, self._metadata.output_columns)
         self._output.extend(tuples)
-
-    @staticmethod
-    def validate_emit(row: Tuple, columns: List[Column]):
-        if len(row) != len(columns):
-            raise Exception(f"row {row} has not the same number of values as columns are defined")
-        for i, column in enumerate(columns):
-            if row[i] is not None and not isinstance(row[i], column.type):
-                raise TypeError(f"Value {row[i]} ({type(row[i])}) at position {i} is not a {column.type}")
