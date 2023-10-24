@@ -15,20 +15,13 @@ def context_set_emits(meta_set_emits):
 
 
 def test_scroll(context_set_emits):
-    assert not context_set_emits.output_groups
-    assert context_set_emits.next_group()
-    assert context_set_emits.t2 == 'cat'
-    assert context_set_emits.next()
-    assert context_set_emits.t2 == 'dog'
-    assert not context_set_emits.next()
-    assert context_set_emits.next_group()
-    assert context_set_emits.t2 == 'ant'
-    assert context_set_emits.next()
-    assert context_set_emits.t2 == 'bee'
-    assert context_set_emits.next()
-    assert context_set_emits.t2 == 'beetle'
-    assert not context_set_emits.next()
-    assert not context_set_emits.next_group()
+    groups = []
+    while context_set_emits.next_group():
+        group = [context_set_emits.t2]
+        while context_set_emits.next():
+            group.append(context_set_emits.t2)
+        groups.append(group)
+    assert groups == [['cat', 'dog'], ['ant', 'bee', 'beetle']]
 
 
 def test_output_groups(context_set_emits):
