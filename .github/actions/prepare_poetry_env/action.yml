@@ -16,5 +16,6 @@ runs:
       uses: abatilo/actions-poetry@v2.1.4
       with:
         poetry-version: 1.4.0
-    - name: Install dependencies
+    - name: Poetry install
       run: poetry install
+      shell: bash
