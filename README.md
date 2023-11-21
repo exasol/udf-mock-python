@@ -14,7 +14,7 @@ In any case, you need to verify your UDFs with integrations test inside the data
 
 ### Installing via pip
 ```
-pip install git+https://github.com/exasol/udf-mock-python.git@main
+pip install udf-mock-python
 ```
 
 ### Installing via poetry
@@ -22,7 +22,7 @@ Add it to your `tool.poetry.dependencies` or `tool.poetry.dev-dependencies`
 
 ```
 [tool.poetry.dev-dependencies]
-exasol-udf-mock-python = { git = "https://github.com/exasol/udf-mock-python.git", branch = "main" }
+udf-mock-python = = "^0.1.0"
 ...
 ```
 
