@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "exasol-udf-mock-python"
-version = "0.1.0"
+version = "0.2.0"
 description = "Mocking framework for Exasol Python UDFs"
 
 license = "MIT"
