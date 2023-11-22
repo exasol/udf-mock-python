@@ -22,7 +22,7 @@ Add it to your `tool.poetry.dependencies` or `tool.poetry.dev-dependencies`
 
 ```
 [tool.poetry.dev-dependencies]
-udf-mock-python = = "^0.1.0"
+udf-mock-python = "^0.1.0"
 ...
 ```
 

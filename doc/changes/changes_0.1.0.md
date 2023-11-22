@@ -1,8 +1,9 @@
-# UDF Mock Python 0.1.0, released 2023.11.21
+# UDF Mock Python 0.1.0, released 2023.11.22
 
 Code name: Initial Release
 
 ## Summary
+
 This is the initial release of the UDF Mock Python which provides a mock runner for Python3 UDFs which allows you to
 test your UDFs locally without a database.
 
