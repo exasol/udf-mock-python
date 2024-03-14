@@ -12,7 +12,7 @@ T.B.D
 
 ### Bugs
 
-  - N/A
+  - #48: Fixed the OSError when running the executor in a Jupyter Notebook.
   
 
 ### Refactorings
