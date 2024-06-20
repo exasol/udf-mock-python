@@ -128,8 +128,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Poetry
-poetry.lock
-
 # PyCharm
 .idea
+
+# Emacs
+TAGS
