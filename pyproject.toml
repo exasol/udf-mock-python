@@ -17,7 +17,7 @@ homepage = "https://github.com/exasol/udf-mock-python"
 keywords = ['exasol', 'udf', 'mock', 'testing']
 
 [tool.poetry.dependencies]
-python = ">=3.8"
+python = "^3.10.0"
 pandas = "^1.4"
 numpy =  "^1.22"
 dill = ">=0.3.7"
