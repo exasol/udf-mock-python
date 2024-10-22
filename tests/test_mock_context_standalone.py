@@ -63,6 +63,21 @@ def test_attr_scalar(context_scalar_return):
     assert context_scalar_return.t == 5
 
 
+@pytest.mark.parametrize('inp', [None, [], [[]]])
+def test_context_empty_input(inp):
+    meta_data = MockMetaData(
+        script_code_wrapper_function=udf_wrapper,
+        input_type='SCALAR',
+        input_columns=[],
+        output_type='RETURNS',
+        output_columns=[Column('t', int, 'INTEGER')]
+    )
+    _ = StandaloneMockContext(inp, meta_data)
+    # There is nothing to test here apart from successful creation of the
+    # context object. This internally has some checks that need to be passed.
+    pass
+
+
 def test_next(context_set_emits):
     assert context_set_emits.next()
     assert context_set_emits.t1 == 6

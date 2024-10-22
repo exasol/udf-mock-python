@@ -1,4 +1,5 @@
 from typing import List, Tuple, Iterator, Iterable, Any, Optional, Union
+from collections.abc import Sized
 from functools import wraps
 
 import pandas as pd
@@ -133,24 +134,30 @@ class MockContext(UDFContext):
         self._current_context.emit(*args)
 
 
-def get_scalar_input(inp: Any) -> Iterable[Tuple[Any, ...]]:
+def get_scalar_input(inp: Any) -> Iterable[Iterable[Any]]:
     """
     Figures out if the SCALAR parameters are provided as a scalar value or a tuple
     and also if there is a wrapping container around.
-    Unless the parameters are already in a wrapping container returns parameters as a tuple wrapped
-    into a one-item list, e.g [(param1[, param2, ...)]. Otherwise, returns the original input.
+    Unless the parameters are already in a wrapping Sized container, returns parameters as an iterable
+    wrapped into a one-item list, e.g [(param1, [param2, ...])]. Otherwise, returns the original input.
 
     :param  inp:        Input parameters.
     """
 
-    if isinstance(inp, Iterable) and not isinstance(inp, str):
-        row1 = next(iter(inp))
-        if isinstance(row1, Iterable) and not isinstance(row1, str):
-            return inp
-        else:
-            return [inp]
-    else:
-        return [(inp,)]
+    if inp is not None:
+        if (not isinstance(inp, Iterable)) or isinstance(inp, str):
+            return [(inp,)]
+        try:
+            row1 = next(iter(inp))
+            if (not isinstance(row1, Iterable)) or isinstance(row1, str):
+                return [inp]
+            elif not isinstance(inp, Sized):
+                return list(inp)
+            else:
+                return inp
+        except StopIteration:
+            pass
+    return [tuple()]
 
 
 class StandaloneMockContext(UDFContext):

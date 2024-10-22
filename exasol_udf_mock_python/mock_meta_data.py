@@ -42,7 +42,8 @@ class MockMetaData:
         self._current_user = current_user
         self._current_schema = current_schema
         self._scope_user = scope_user
-        self._script_code = self._extract_script_code(script_code_wrapper_function)
+        self._script_code = (None if script_code_wrapper_function is None
+                             else self._extract_script_code(script_code_wrapper_function))
         self._connection_id = connection_id
         self._database_name = database_name
         self._database_version = database_version
