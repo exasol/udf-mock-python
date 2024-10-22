@@ -212,20 +212,18 @@ class StandaloneMockContext(UDFContext):
         columns_ = [column.name for column in self._metadata.input_columns[start_col:]]
 
         i = 0
-        df = None
+        dfs: list[pd.DataFrame] = []
         while num_rows == 'all' or i < num_rows:
-            df_current = pd.DataFrame.from_records(
-                [self._data[start_col:]], columns=columns_)
-            if df is None:
-                df = df_current
-            else:
-                df = df.append(df_current)
+            dfs.append(pd.DataFrame.from_records(
+                [self._data[start_col:]], columns=columns_))
             if not self.next():
                 break
             i += 1
-        if df is not None:
-            df = df.reset_index(drop=True)
-        return df
+        if dfs:
+            df = pd.concat(dfs, ignore_index=True)
+            df.reset_index(inplace=True, drop=True)
+            return df
+        return None
 
     def __getattr__(self, name):
         return None if self._data is None else self._data[self._name_position_map[name]]
