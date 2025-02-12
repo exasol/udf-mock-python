@@ -1,8 +1,8 @@
 import re
-import dill
 import textwrap
 from typing import List
 from exasol_udf_mock_python.column import Column
+from inspect import getsource
 
 
 class MockMetaData:
@@ -64,7 +64,7 @@ class MockMetaData:
         self._is_variadic_input = is_variadic_input
 
     def _extract_script_code(self, script_code_wrapper_function):
-        function_code = textwrap.dedent(dill.source.getsource(script_code_wrapper_function))
+        function_code = textwrap.dedent(getsource(script_code_wrapper_function))
         function_name = script_code_wrapper_function.__name__
         starts_with_pattern = r"^def[ \t]+" + function_name + r"[ \t]*\([ \t]*\)[ \t]*:[ \t]*\n"
         match = re.match(starts_with_pattern, function_code)

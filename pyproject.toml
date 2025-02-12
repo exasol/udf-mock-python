@@ -20,7 +20,6 @@ keywords = ['exasol', 'udf', 'mock', 'testing']
 python = "^3.10"
 pandas = "^2.2.3"
 numpy =  ">=1.26.4,<2"
-dill = ">=0.3.6"
 
 [tool.poetry.dev-dependencies]
 pytest = "^8.2.2"
