@@ -19,7 +19,7 @@ jobs:
         uses: exasol/python-toolbox/.github/actions/python-environment@1.1.0
         with:
           python-version: ${{ matrix.python-version }}
-          poetry-version: '1.8.5'
+          poetry-version: '2.1.2'
 
       - name: Run pytest
-        run: poetry run python3 -m pytest
+        run: poetry run -- python3 -m pytest
