@@ -1,6 +1,6 @@
 [project]
 name = "exasol-udf-mock-python"
-version = "0.4.0"
+version = "0.7.0"
 requires-python = ">=3.10.0,<4.0"
 description = "Mocking framework for Exasol Python UDFs"
 authors = [
@@ -23,6 +23,7 @@ pandas = "^2.2.3"
 numpy =  ">=1.26.4,<3"
 
 [tool.poetry.group.dev.dependencies]
+exasol-toolbox = "^1.9.0"
 pytest = "^8.2.2"
 pytest-cov = "^5.0.0"
 
