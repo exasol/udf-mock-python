@@ -20,7 +20,7 @@ requires-poetry = ">=2.1.0"
 
 [tool.poetry.dependencies]
 pandas = "^2.2.3"
-numpy =  ">=1.26.4,<2"
+numpy =  ">=1.26.4,<3"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.2"
