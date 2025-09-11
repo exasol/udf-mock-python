@@ -7,4 +7,4 @@ This release loosens the constraints for dependency `numpy` as python 3.13 is on
 ### Refactorings
 
 * #64: Update to poetry 2.1.2
-* #66: Loosen numpy constraint
+* #66: Loosen constraint for dependency `numpy`
