@@ -9,3 +9,6 @@ class Column:
 
     def __repr__(self):
         return str(self.__class__) + ": " + str(self.__dict__)
+
+    def __str__(self):
+        return f"{self.name}:{self.type.__name__}"
