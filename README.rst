@@ -36,8 +36,8 @@ Add it to your ``tool.poetry.dependencies`` or ``tool.poetry.dev-dependencies``
 How to use the Mock
 ^^^^^^^^^^^^^^^^^^^
 
-The mock runner runs your python UDF in a python environment in which
-no external variables, functions or classes are visble.
+The mock runner runs your Python UDF in a Python environment in which
+no external variables, functions or classes are visible.
 This means in practice, you can only use things you defined inside your
 UDF and what gets provided by the UDF frameworks,
 such as exa.meta and the context for the run function.
@@ -47,7 +47,7 @@ You define a UDF in this framework within in a wrapper function.
 This wrapper function then contains all necessary imports, functions,
 variables and classes.
 You then handover the wrapper function to the ``UDFMockExecutor``
-which runs the UDF inside if the isolated python environment.
+which runs the UDF inside if the isolated Python environment.
 The following example shows, how you use this framework:
 The following example shows the general setup for a test with the Mock:
 
@@ -73,7 +73,7 @@ The following example shows the general setup for a test with the Mock:
    exa = MockExaEnvironment(meta)
    result = executor.run([Group([(1,1.0,"1"), (5,5.0,"5"), (6,6.0,"6")])], exa)
 
-**Checkout the `tests <tests>`_ for more information about, how to use the Mock.**
+**Check out the `tests <tests>`_ for more information about, how to use the Mock.**
 
 Limitations or missing features
 -------------------------------
@@ -94,12 +94,12 @@ feature and might get removed by later releases:
     * UDF inside of the database only can write /tmp to tmp and
       only see the file system of the script-language container and the mounted bucketfs
 
-  * Can use all python package available in the system running the Mock
+  * Can use all Python package available in the system running the Mock
 
     * If you use package which are currently not available in the script-language containers,
       you need create your own container for testing inside of the database
 
-  * Does not emulate the ressource limitations which get a applied in the database
+  * Does not emulate the resource limitations which get a applied in the database
 
 * Only one instance of the UDF gets executed
 * No support for Python2, because Python2 is officially End of Life
