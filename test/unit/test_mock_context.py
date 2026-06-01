@@ -2,7 +2,7 @@ import pytest
 
 from exasol_udf_mock_python.group import Group
 from exasol_udf_mock_python.mock_context import MockContext
-from unit.test_mock_context_standalone import meta_set_emits
+from test.unit.test_mock_context_standalone import meta_set_emits
 
 
 @pytest.fixture
