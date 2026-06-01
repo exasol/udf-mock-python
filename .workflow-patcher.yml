@@ -19,3 +19,12 @@ workflows:
       # This job will be re-activated in:
       #   https://github.com/exasol/udf-mock-python/issues/89
       - check-workflows
+  - name: merge-gate
+    remove_jobs:
+      # There are not yet slow checks for this project.
+      -  approve-run-slow-tests
+      - run-slow-checks
+  - name: periodic-validation
+    remove_jobs:
+      # There are not yet slow checks for this project.
+      - run-slow-checks
