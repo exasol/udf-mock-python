@@ -40,6 +40,47 @@ dev = [
 
 [tool.poetry]
 requires-poetry = ">=2.3.0"
+packages = [
+    { include = "exasol_udf_mock_python" },
+]
+include = [
+    "README.rst",
+    "doc/changes/changelog.md",
+    "LICENSE",
+]
+
+[tool.coverage.run]
+relative_files = true
+source = [
+    "exasol",
+]
+
+[tool.coverage.report]
+fail_under = 15
+
+[tool.black]
+line-length = 88
+verbose = false
+include = "\\.pyi?$"
+
+[tool.isort]
+profile = "black"
+force_grid_wrap = 2
+
+[tool.pylint.master]
+fail-under = 7.5
+
+[tool.pylint.format]
+max-line-length = 88
+max-module-lines = 800
+
+
+[[tool.mypy.overrides]]
+module = [
+    "test.unit.*",
+    "test.integration.*",
+]
+ignore_errors = true
 
 [tool.poetry.requires-plugins]
 poetry-plugin-export = ">=1.8"
