@@ -1,0 +1,4 @@
+workflows:
+  - name: cd
+    remove_jobs:
+      - publish-docs
