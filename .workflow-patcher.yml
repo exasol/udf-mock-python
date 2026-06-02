@@ -22,7 +22,7 @@ workflows:
   - name: merge-gate
     remove_jobs:
       # There are not yet slow checks for this project.
-      -  approve-run-slow-tests
+      - approve-run-slow-tests
       - run-slow-checks
   - name: periodic-validation
     remove_jobs:
