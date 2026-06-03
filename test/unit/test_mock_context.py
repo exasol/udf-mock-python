@@ -1,9 +1,8 @@
 import pytest
-import pandas as pd
 
 from exasol_udf_mock_python.group import Group
 from exasol_udf_mock_python.mock_context import MockContext
-from tests.test_mock_context_standalone import meta_set_emits
+from test.unit.test_mock_context_standalone import meta_set_emits
 
 
 @pytest.fixture

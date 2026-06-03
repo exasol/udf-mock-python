@@ -32,15 +32,74 @@ homepage = "https://github.com/exasol/udf-mock-python"
 
 [dependency-groups]
 dev = [
-    "exasol-toolbox>=6.1.0,<7",
+    "exasol-toolbox>=8.1.1,<9",
+    "pandas-stubs>=2.3.3.251219,<3",
     "pytest>=8.2.2,<10",
     "pytest-cov>=5.0.0,<6",
 ]
 
 [tool.poetry]
 requires-poetry = ">=2.3.0"
+packages = [
+    { include = "exasol_udf_mock_python" },
+]
+include = [
+    "README.rst",
+    "doc/changes/changelog.md",
+    "LICENSE",
+]
+
+[tool.coverage.run]
+relative_files = true
+source = [
+    "exasol",
+]
+
+[tool.coverage.report]
+fail_under = 15
+
+[tool.black]
+line-length = 88
+verbose = false
+include = "\\.pyi?$"
+
+[tool.isort]
+profile = "black"
+force_grid_wrap = 2
+
+[tool.pylint.master]
+fail-under = 6.7
+
+[tool.pylint.format]
+max-line-length = 88
+max-module-lines = 800
+
+
+[[tool.mypy.overrides]]
+module = [
+    "test.unit.*",
+    "test.integration.*",
+]
+ignore_errors = true
+
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.8"
 
 [build-system]
 requires = ["poetry-core>=2.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.ruff.lint]
+extend-ignore = [
+    "E", # Syntax errors
+    "F", # Pyflakes rules (excluding F401)
+    "UP", # pyupgrade rules
+    "D", # Docstring rules
+]
+extend-select = ["F401"]
+unfixable = []
+
+[tool.sonar]
+projectKey = "com.exasol:udf-mock-python"
+host.url = "https://sonarcloud.io"
+organization = "exasol"
