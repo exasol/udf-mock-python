@@ -52,7 +52,7 @@ include = [
 [tool.coverage.run]
 relative_files = true
 source = [
-    "exasol",
+    "exasol_udf_mock_python",
 ]
 
 [tool.coverage.report]
