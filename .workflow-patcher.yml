@@ -1,14 +1,6 @@
 workflows:
-  - name: cd
-    # This will be resolved in:
-    #   https://github.com/exasol/udf-mock-python/issues/87
-    remove_jobs:
-      - publish-docs
   - name: checks
     remove_jobs:
-      # This will be resolved in:
-      #   https://github.com/exasol/udf-mock-python/issues/87
-      - build-documentation-and-check-links
       # This will be resolved in:
       #   https://github.com/exasol/udf-mock-python/issues/86
       - check-format
