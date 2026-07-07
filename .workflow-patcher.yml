@@ -7,10 +7,6 @@ workflows:
       # This will be resolved in:
       #   https://github.com/exasol/udf-mock-python/issues/88
       - lint-typing
-      # This is needed because this project does not need `matrix-all.yml` or `matrix-exasol.yml`.
-      # This job will be re-activated in:
-      #   https://github.com/exasol/udf-mock-python/issues/89
-      - check-workflows
   - name: merge-gate
     remove_jobs:
       # There are not yet slow checks for this project.

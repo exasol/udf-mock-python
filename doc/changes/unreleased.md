@@ -11,3 +11,4 @@
 * #85: Updated exasol-toolbox to 8.1.1 and added its workflow files
 * #91: Fixed coverage to be against source code directory
 * #96: Updated to exasol-toolbox 10.2.0
+* #89: Re-enables `check-workflows` in `checks.yml`
