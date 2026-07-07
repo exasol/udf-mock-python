@@ -10,6 +10,19 @@ from pydantic import computed_field
 class Config(BaseConfig):
     @computed_field  # type: ignore[misc]
     @property
+    def has_documentation(self) -> bool:
+        """
+        Indicates that the project serves Sphinx-based documentation. With a few
+        exceptions, this should be the case for most projects.
+
+        This needs to be overridden as Sphinx-documentation is not setup. This will
+        be addressed in:
+            https://github.com/exasol/udf-mock-python/issues/38
+        """
+        return False
+
+    @computed_field  # type: ignore[misc]
+    @property
     def source_code_path(self) -> Path:
         """
         Path to the source code of the project.
