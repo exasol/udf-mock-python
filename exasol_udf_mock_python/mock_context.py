@@ -35,11 +35,20 @@ def validate_emit(row: Tuple, columns: List[Column]):
     :param row:         Data row
     :param columns:     Column definition.
     """
-    if len(row) != len(columns):
-        raise ValueError(f"row {row} has not the same number of values as columns are defined")
+    if (expected_len := len(columns)) != (actual_len := len(row)):
+        raise ValueError(
+            f"Row length missmatch: got {actual_len} values but {expected_len} columns are defined.\n"
+            f"  Expected columns: {[str(c) for c in columns]}. Actual values: {row}\n"
+        )
+    errors = []
     for i, column in enumerate(columns):
         if row[i] is not None and not isinstance(row[i], column.type):
-            raise TypeError(f"Value {row[i]} ({type(row[i])}) at position {i} is not a {column.type}")
+            errors.append(
+                    f"Type missmatch at column '{column.name}' (index {i})\n"
+                    f"  Expected type: {column.type.__name__}. Actual type {type(row[i]).__name__} with Value: {row[i]}.\n"
+                )
+    if errors:
+        raise TypeError("\n".join(errors))
 
 
 class MockContext(UDFContext):
