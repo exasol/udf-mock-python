@@ -14,31 +14,6 @@ def udf_wrapper():
 
 
 @pytest.fixture
-def meta_scalar_return():
-    return MockMetaData(
-        script_code_wrapper_function=udf_wrapper,
-        input_type="SCALAR",
-        input_columns=[Column("t", int, "INTEGER")],
-        output_type="RETURNS",
-        output_columns=[Column("t", int, "INTEGER")],
-    )
-
-
-@pytest.fixture
-def meta_set_emits():
-    return MockMetaData(
-        script_code_wrapper_function=udf_wrapper,
-        input_type="SET",
-        input_columns=[Column("t1", int, "INTEGER"), Column("t2", str, "VARCHAR(100)")],
-        output_type="EMITS",
-        output_columns=[
-            Column("t1", int, "INTEGER"),
-            Column("t2", str, "VARCHAR(100)"),
-        ],
-    )
-
-
-@pytest.fixture
 def context_scalar_return(meta_scalar_return):
     return StandaloneMockContext((5,), meta_scalar_return)
 
