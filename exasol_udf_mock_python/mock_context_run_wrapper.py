@@ -4,13 +4,19 @@ from exasol_udf_mock_python.mock_context import MockContext
 def _disallowed_function(*args, **kw):
     raise RuntimeError(
         "F-UDF-CL-SL-PYTHON-1107: next(), reset() and emit() "
-        "functions are not allowed in scalar context")
+        "functions are not allowed in scalar context"
+    )
 
 
 class MockContextRunWrapper:
 
-    def __init__(self, mock_context: MockContext, input_type: str,
-                 output_type: str, is_variadic_input: bool):
+    def __init__(
+        self,
+        mock_context: MockContext,
+        input_type: str,
+        output_type: str,
+        is_variadic_input: bool,
+    ):
         self._output_type = output_type
         self._input_type = input_type
         self._mock_context = mock_context
@@ -34,8 +40,9 @@ class MockContextRunWrapper:
         valid identifier in python, this method cannot be used by variadic UDFs.
         """
         if self._is_variadic_input:
-            raise RuntimeError(f"E-UDF-CL-SL-PYTHON-1085: Iterator has no "
-                               f"object with name '{name}'")
+            raise RuntimeError(
+                f"E-UDF-CL-SL-PYTHON-1085: Iterator has no object with name '{name}'"
+            )
         return self._mock_context.__getattr__(name)
 
     def __getitem__(self, item):
@@ -54,5 +61,7 @@ class MockContextRunWrapper:
             try:
                 return self._mock_context.__getattr__(item)
             except KeyError:
-                raise RuntimeError(f"E-UDF-CL-SL-PYTHON-1082: Column with name "
-                                   f"'{item}' does not exist")
+                raise RuntimeError(
+                    "E-UDF-CL-SL-PYTHON-1082: Column with name "
+                    f"'{item}' does not exist"
+                )

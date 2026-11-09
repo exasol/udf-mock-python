@@ -1,6 +1,9 @@
 from collections.abc import Iterable
 
-from exasol_udf_mock_python.group import Group, IterableWithSize
+from exasol_udf_mock_python.group import (
+    Group,
+    IterableWithSize,
+)
 
 
 def test_groups_are_equal():
@@ -60,7 +63,9 @@ def test_group_with_custom_iterable_len():
 def test_group_with_iterable_with_size_len():
     class MyIterableWithSize(IterableWithSize):
         def __iter__(self):
-            raise Exception("The group should use __len__ instead of __iter__ to determine the length")
+            raise Exception(
+                "The group should use __len__ instead of __iter__ to determine the length"
+            )
 
         def __len__(self):
             return 3
