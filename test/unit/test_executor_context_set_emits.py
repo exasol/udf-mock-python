@@ -228,8 +228,9 @@ def test_get_dataframe_num_rows_0():
         output_columns=[Column("t", int, "INTEGER")],
     )
     exa = MockExaEnvironment(meta)
-    with pytest.raises(RuntimeError) as excinfo:
-        result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+    groups = [Group([(1,), (2,), (3,), (4,), (5,), (6,)])]
+    with pytest.raises(RuntimeError):
+        executor.run(groups, exa)
 
 
 def test_get_dataframe_num_rows_float():
@@ -246,8 +247,9 @@ def test_get_dataframe_num_rows_float():
         output_columns=[Column("t", int, "INTEGER")],
     )
     exa = MockExaEnvironment(meta)
+    groups = [Group([(1,), (2,), (3,), (4,), (5,), (6,)])]
     with pytest.raises(RuntimeError):
-        executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+        executor.run(groups, exa)
 
 
 def test_get_dataframe_num_rows_None():
@@ -264,8 +266,9 @@ def test_get_dataframe_num_rows_None():
         output_columns=[Column("t", int, "INTEGER")],
     )
     exa = MockExaEnvironment(meta)
+    groups = [Group([(1,), (2,), (3,), (4,), (5,), (6,)])]
     with pytest.raises(RuntimeError):
-        executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+        executor.run(groups, exa)
 
 
 def test_get_dataframe_num_rows_negative():
@@ -282,8 +285,9 @@ def test_get_dataframe_num_rows_negative():
         output_columns=[Column("t", int, "INTEGER")],
     )
     exa = MockExaEnvironment(meta)
+    groups = [Group([(1,), (2,), (3,), (4,), (5,), (6,)])]
     with pytest.raises(RuntimeError):
-        executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+        executor.run(groups, exa)
 
 
 def test_get_dataframe_start_col_None():
@@ -300,8 +304,9 @@ def test_get_dataframe_start_col_None():
         output_columns=[Column("t", int, "INTEGER")],
     )
     exa = MockExaEnvironment(meta)
+    groups = [Group([(1,), (2,), (3,), (4,), (5,), (6,)])]
     with pytest.raises(RuntimeError):
-        executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+        executor.run(groups, exa)
 
 
 def test_get_dataframe_start_col_negative():
@@ -318,8 +323,9 @@ def test_get_dataframe_start_col_negative():
         output_columns=[Column("t", int, "INTEGER")],
     )
     exa = MockExaEnvironment(meta)
+    groups = [Group([(1,), (2,), (3,), (4,), (5,), (6,)])]
     with pytest.raises(RuntimeError):
-        executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+        executor.run(groups, exa)
 
 
 def test_get_dataframe_start_col_0():
