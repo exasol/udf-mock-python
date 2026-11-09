@@ -50,22 +50,22 @@ class UDFMockExecutor:
     _lock = Lock()
 
     def _exec_run(self, exec_globals: dict[str, Any], ctx: MockContext):
-        codeObject = compile(
+        code_object = compile(
             "__loop_groups(__mock_test_executor_ctx, exa, run)", "exec_run", "exec"
         )
         exec_locals = {}
         exec_globals["__mock_test_executor_ctx"] = ctx
         exec_globals["__loop_groups"] = _loop_groups
-        exec(codeObject, exec_globals, exec_locals)
+        exec(code_object, exec_globals, exec_locals)
 
     def _exec_cleanup(self, exec_globals: dict[str, Any]):
-        codeObject = compile("cleanup()", "exec_cleanup", "exec")
-        exec(codeObject, exec_globals)
+        code_object = compile("cleanup()", "exec_cleanup", "exec")
+        exec(code_object, exec_globals)
 
     def _exec_init(self, exa_environment: MockExaEnvironment) -> dict[str, Any]:
-        codeObject = compile(exa_environment.meta.script_code, "udf", "exec")
+        code_object = compile(exa_environment.meta.script_code, "udf", "exec")
         exec_globals = {"exa": exa_environment}
-        exec(codeObject, exec_globals)
+        exec(code_object, exec_globals)
         return exec_globals
 
     def run(
