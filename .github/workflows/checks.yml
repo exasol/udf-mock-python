@@ -104,6 +104,29 @@ jobs:
           include-hidden-files: true
           overwrite: false
 
+  check-format:
+    name: Check Format
+    runs-on: "ubuntu-26.04"
+    permissions:
+      contents: read
+    steps:
+      - name: Check out Repository
+        id: check-out-repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python & Poetry Environment
+        id: set-up-python-and-poetry-environment
+        uses: exasol/python-toolbox/.github/actions/python-environment@v12
+        with:
+          python-version: "3.11"
+          poetry-version: "2.3.0"
+
+      - name: Check Format
+        id: check-format
+        run: poetry run -- nox -s format:check
+
   build-package:
     name: Build Package
     runs-on: "ubuntu-26.04"
