@@ -1,19 +1,25 @@
+from collections.abc import (
+    Callable,
+    Iterator,
+)
 from multiprocessing import Lock
-from typing import Dict, Any, Iterator, List, Union, Callable, Tuple
+from typing import Any
+
 from exasol_udf_mock_python.group import Group
 from exasol_udf_mock_python.mock_context import MockContext
 from exasol_udf_mock_python.mock_context_run_wrapper import MockContextRunWrapper
 from exasol_udf_mock_python.mock_exa_environment import MockExaEnvironment
 
 
-def _loop_groups(ctx:MockContext, exa:MockExaEnvironment, runfunc:Callable):
+def _loop_groups(ctx: MockContext, exa: MockExaEnvironment, runfunc: Callable):
     while ctx.next_group():
         _wrapped_run(ctx, exa, runfunc)
 
 
-def _wrapped_run(ctx:MockContext, exa: MockExaEnvironment, runfunc: Callable):
+def _wrapped_run(ctx: MockContext, exa: MockExaEnvironment, runfunc: Callable):
     wrapped_ctx = MockContextRunWrapper(
-        ctx, exa.meta.input_type, exa.meta.output_type, exa.meta.is_variadic_input)
+        ctx, exa.meta.input_type, exa.meta.output_type, exa.meta.is_variadic_input
+    )
     if exa.meta.input_type == "SET":
         if exa.meta.output_type == "RETURNS":
             run_with_returns(ctx, runfunc, wrapped_ctx)
@@ -21,12 +27,12 @@ def _wrapped_run(ctx:MockContext, exa: MockExaEnvironment, runfunc: Callable):
             runfunc(wrapped_ctx)
     else:
         if exa.meta.output_type == "RETURNS":
-            while (True):
+            while True:
                 run_with_returns(ctx, runfunc, wrapped_ctx)
                 if not ctx.next():
                     break
         else:
-            while (True):
+            while True:
                 runfunc(wrapped_ctx)
                 if not ctx.next():
                     break
@@ -34,7 +40,7 @@ def _wrapped_run(ctx:MockContext, exa: MockExaEnvironment, runfunc: Callable):
 
 def run_with_returns(ctx, runfunc, wrapped_ctx):
     result = runfunc(wrapped_ctx)
-    if isinstance(result, Tuple):
+    if isinstance(result, tuple):
         ctx.emit(*result)
     else:
         ctx.emit(result)
@@ -43,31 +49,34 @@ def run_with_returns(ctx, runfunc, wrapped_ctx):
 class UDFMockExecutor:
     _lock = Lock()
 
-    def _exec_run(self, exec_globals: Dict[str, Any], ctx: MockContext):
-        codeObject = compile("__loop_groups(__mock_test_executor_ctx, exa, run)", 'exec_run', 'exec')
+    def _exec_run(self, exec_globals: dict[str, Any], ctx: MockContext):
+        code_object = compile(
+            "__loop_groups(__mock_test_executor_ctx, exa, run)", "exec_run", "exec"
+        )
         exec_locals = {}
         exec_globals["__mock_test_executor_ctx"] = ctx
         exec_globals["__loop_groups"] = _loop_groups
-        exec(codeObject, exec_globals, exec_locals)
+        exec(code_object, exec_globals, exec_locals)
 
-    def _exec_cleanup(self, exec_globals: Dict[str, Any]):
-        codeObject = compile("cleanup()", 'exec_cleanup', 'exec')
-        exec(codeObject, exec_globals)
+    def _exec_cleanup(self, exec_globals: dict[str, Any]):
+        code_object = compile("cleanup()", "exec_cleanup", "exec")
+        exec(code_object, exec_globals)
 
-    def _exec_init(self, exa_environment: MockExaEnvironment) -> Dict[str, Any]:
-        codeObject = compile(exa_environment.meta.script_code, 'udf', 'exec')
+    def _exec_init(self, exa_environment: MockExaEnvironment) -> dict[str, Any]:
+        code_object = compile(exa_environment.meta.script_code, "udf", "exec")
         exec_globals = {"exa": exa_environment}
-        exec(codeObject, exec_globals)
+        exec(code_object, exec_globals)
         return exec_globals
 
-    def run(self,
-            input_groups:Union[Iterator[Group],List[Group]],
-            exa_environment: MockExaEnvironment)\
-            ->List[Group]:
+    def run(
+        self,
+        input_groups: Iterator[Group] | list[Group],
+        exa_environment: MockExaEnvironment,
+    ) -> list[Group]:
         with self._lock:
-            if isinstance(input_groups,Iterator):
+            if isinstance(input_groups, Iterator):
                 ctx = MockContext(input_groups, exa_environment.meta)
-            elif isinstance(input_groups,List):
+            elif isinstance(input_groups, list):
                 ctx = MockContext(iter(input_groups), exa_environment.meta)
             else:
                 raise TypeError(f"{type(input_groups)} for input_groups not supported")

@@ -12,3 +12,5 @@
 * #91: Fixed coverage to be against source code directory
 * #96: Updated to exasol-toolbox 10.2.0
 * #89: Re-enables `check-workflows` in `checks.yml`
+* #104: Removed support for Python 3.10 and updated exasol-toolbox to 12.0.0
+* #86: Used Nox session format:fix to align code with formatting standards and reactivated `check-format` in the `checks.yml`

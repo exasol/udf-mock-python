@@ -1,6 +1,10 @@
-from typing import List, Tuple, Iterator, Iterable, Any, Optional, Union
-from collections.abc import Sized
+from collections.abc import (
+    Iterable,
+    Iterator,
+    Sized,
+)
 from functools import wraps
+from typing import Any
 
 import pandas as pd
 
@@ -15,17 +19,20 @@ def check_context(f):
     Decorator checking that a MockContext object has valid current group context.
     Raises a RuntimeError if this is not the case.
     """
+
     @wraps(f)
     def wrapper(self, *args, **kwargs):
         if self.no_context:
-            raise RuntimeError('Calling UDFContext interface when the current group context '
-                               'is invalid is disallowed')
+            raise RuntimeError(
+                "Calling UDFContext interface when the current group context "
+                "is invalid is disallowed"
+            )
         return f(self, *args, **kwargs)
 
     return wrapper
 
 
-def validate_emit(row: Tuple, columns: List[Column]):
+def validate_emit(row: tuple, columns: list[Column]):
     """
     Validates that a data row to be emitted corresponds to the definition of the output columns.
     The number of elements in the row should match the number of columns and the type of each
@@ -36,10 +43,14 @@ def validate_emit(row: Tuple, columns: List[Column]):
     :param columns:     Column definition.
     """
     if len(row) != len(columns):
-        raise ValueError(f"row {row} has not the same number of values as columns are defined")
+        raise ValueError(
+            f"row {row} has not the same number of values as columns are defined"
+        )
     for i, column in enumerate(columns):
         if row[i] is not None and not isinstance(row[i], column.type):
-            raise TypeError(f"Value {row[i]} ({type(row[i])}) at position {i} is not a {column.type}")
+            raise TypeError(
+                f"Value {row[i]} ({type(row[i])}) at position {i} is not a {column.type}"
+            )
 
 
 class MockContext(UDFContext):
@@ -65,9 +76,9 @@ class MockContext(UDFContext):
         self._input_groups = input_groups
         self._metadata = metadata
         """ Mock context for the current group """
-        self._current_context: Optional[StandaloneMockContext] = None
+        self._current_context: StandaloneMockContext | None = None
         """ Output for all groups """
-        self._previous_output: List[Group] = []
+        self._previous_output: list[Group] = []
 
     @property
     def no_context(self) -> bool:
@@ -114,7 +125,9 @@ class MockContext(UDFContext):
         return getattr(self._current_context, name)
 
     @check_context
-    def get_dataframe(self, num_rows: Union[str, int], start_col: int = 0) -> Optional[pd.DataFrame]:
+    def get_dataframe(
+        self, num_rows: str | int, start_col: int = 0
+    ) -> pd.DataFrame | None:
         return self._current_context.get_dataframe(num_rows, start_col)
 
     @check_context
@@ -179,22 +192,22 @@ class StandaloneMockContext(UDFContext):
 
         :param metadata:    The mock metadata object.
         """
-        if metadata.input_type.upper() == 'SCALAR':
+        if metadata.input_type.upper() == "SCALAR":
             self._input = get_scalar_input(inp)
         else:
             self._input = inp
         self._metadata = metadata
-        self._data: Optional[Any] = None
-        self._iter: Optional[Iterator[Tuple[Any, ...]]] = None
-        self._name_position_map = \
-            {column.name: position
-             for position, column
-             in enumerate(metadata.input_columns)}
+        self._data: Any | None = None
+        self._iter: Iterator[tuple[Any, ...]] | None = None
+        self._name_position_map = {
+            column.name: position
+            for position, column in enumerate(metadata.input_columns)
+        }
         self._output = []
         self.next(reset=True)
 
     @property
-    def output(self) -> List[Tuple[Any, ...]]:
+    def output(self) -> list[tuple[Any, ...]]:
         """Emitted output so far"""
         return self._output
 
@@ -202,20 +215,25 @@ class StandaloneMockContext(UDFContext):
     def _is_positive_integer(value):
         return value is not None and isinstance(value, int) and value > 0
 
-    def get_dataframe(self, num_rows='all', start_col=0):
-        if not (num_rows == 'all' or self._is_positive_integer(num_rows)):
-            raise RuntimeError("get_dataframe() parameter 'num_rows' must be 'all' or an integer > 0")
+    def get_dataframe(self, num_rows="all", start_col=0):
+        if not (num_rows == "all" or self._is_positive_integer(num_rows)):
+            raise RuntimeError(
+                "get_dataframe() parameter 'num_rows' must be 'all' or an integer > 0"
+            )
         if not (self._is_positive_integer(start_col) or start_col == 0):
-            raise RuntimeError("get_dataframe() parameter 'start_col' must be an integer >= 0")
+            raise RuntimeError(
+                "get_dataframe() parameter 'start_col' must be an integer >= 0"
+            )
         if self._data is None:
             return None
         columns_ = [column.name for column in self._metadata.input_columns[start_col:]]
 
         i = 0
         dfs: list[pd.DataFrame] = []
-        while num_rows == 'all' or i < num_rows:
-            dfs.append(pd.DataFrame.from_records(
-                [self._data[start_col:]], columns=columns_))
+        while num_rows == "all" or i < num_rows:
+            dfs.append(
+                pd.DataFrame.from_records([self._data[start_col:]], columns=columns_)
+            )
             if not self.next():
                 break
             i += 1
@@ -250,7 +268,7 @@ class StandaloneMockContext(UDFContext):
 
     def emit(self, *args):
         if len(args) == 1 and isinstance(args[0], pd.DataFrame):
-            tuples = [tuple(x) for x in args[0].astype('object').values]
+            tuples = [tuple(x) for x in args[0].astype("object").values]
         else:
             tuples = [args]
         for row in tuples:

@@ -19,7 +19,7 @@ def test_exa_meta_in_init():
         input_type="SET",
         input_columns=[Column("t", int, "INTEGER")],
         output_type="EMITS",
-        output_columns=[Column("t", str, "VARCHAR(2000)")]
+        output_columns=[Column("t", str, "VARCHAR(2000)")],
     )
     exa = MockExaEnvironment(meta)
     result = executor.run([Group([(1,)])], exa)
@@ -37,7 +37,7 @@ def test_exa_meta_in_run():
         input_type="SET",
         input_columns=[Column("t", int, "INTEGER")],
         output_type="EMITS",
-        output_columns=[Column("t", str, "VARCHAR(2000)")]
+        output_columns=[Column("t", str, "VARCHAR(2000)")],
     )
     exa = MockExaEnvironment(meta)
     result = executor.run([Group([(1,)])], exa)
@@ -57,9 +57,11 @@ def test_get_connection_in_init():
         input_type="SET",
         input_columns=[Column("t", int, "INTEGER")],
         output_type="EMITS",
-        output_columns=[Column("t", str, "VARCHAR(2000)")]
+        output_columns=[Column("t", str, "VARCHAR(2000)")],
     )
-    exa = MockExaEnvironment(meta, connections={"TEST_CON": Connection(address="https://test.de")})
+    exa = MockExaEnvironment(
+        meta, connections={"TEST_CON": Connection(address="https://test.de")}
+    )
     result = executor.run([Group([(1,)])], exa)
     assert result == [Group([("https://test.de",)])]
 
@@ -71,17 +73,21 @@ def test_exa_meta_column_count():
         def run(ctx):
             ctx.emit(script_code)
 
-    input_columns = [Column("t1", int, "INTEGER"),
-                     Column("t2", int, "INTEGER"),
-                     Column("t3", int, "INTEGER")]
-    output_columns = [Column("o1", str, "VARCHAR(2000)"),
-                      Column("o2", str, "VARCHAR(2000)")]
+    input_columns = [
+        Column("t1", int, "INTEGER"),
+        Column("t2", int, "INTEGER"),
+        Column("t3", int, "INTEGER"),
+    ]
+    output_columns = [
+        Column("o1", str, "VARCHAR(2000)"),
+        Column("o2", str, "VARCHAR(2000)"),
+    ]
     meta = MockMetaData(
         script_code_wrapper_function=udf_wrapper,
         input_type="SET",
         input_columns=input_columns,
         output_type="EMITS",
-        output_columns=output_columns
+        output_columns=output_columns,
     )
     exa = MockExaEnvironment(meta)
 

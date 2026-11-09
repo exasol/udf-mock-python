@@ -1,5 +1,7 @@
-from abc import ABCMeta, abstractmethod
-from typing import Union, Optional
+from abc import (
+    ABCMeta,
+    abstractmethod,
+)
 
 import pandas as pd
 
@@ -12,7 +14,9 @@ class UDFContext(metaclass=ABCMeta):
     """
 
     @abstractmethod
-    def get_dataframe(self, num_rows: Union[str, int], start_col: int = 0) -> Optional[pd.DataFrame]:
+    def get_dataframe(
+        self, num_rows: str | int, start_col: int = 0
+    ) -> pd.DataFrame | None:
         """
         Returns the next input rows as a pandas dataframe. This function is only available for SET UDFs.
         :param num_rows: either the string "all", or the number of rows to return as int

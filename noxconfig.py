@@ -37,5 +37,4 @@ class Config(BaseConfig):
 PROJECT_CONFIG = Config(
     project_name="exasol_udf_mock_python",
     root_path=ROOT_DIR,
-    python_versions=("3.10", "3.11", "3.12", "3.13"),
 )

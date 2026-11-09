@@ -1,5 +1,7 @@
-import pytest
 import unittest
+
+import pytest
+
 from exasol_udf_mock_python.column import Column
 from exasol_udf_mock_python.group import Group
 from exasol_udf_mock_python.mock_exa_environment import MockExaEnvironment
@@ -22,7 +24,7 @@ def test_next_and_emit():
         input_type="SET",
         input_columns=[Column("t", int, "INTEGER")],
         output_type="EMITS",
-        output_columns=[Column("t", int, "INTEGER")]
+        output_columns=[Column("t", int, "INTEGER")],
     )
     exa = MockExaEnvironment(meta)
     result = executor.run([Group([(1,), (5,), (6,)])], exa)
@@ -40,7 +42,7 @@ def test_emit_single_column_none():
         input_type="SET",
         input_columns=[Column("t", int, "INTEGER")],
         output_type="EMITS",
-        output_columns=[Column("t", int, "INTEGER")]
+        output_columns=[Column("t", int, "INTEGER")],
     )
     exa = MockExaEnvironment(meta)
     result = executor.run([Group([(1,), (5,), (6,)])], exa)
@@ -58,8 +60,7 @@ def test_emit_multi_column_none():
         input_type="SET",
         input_columns=[Column("t", int, "INTEGER")],
         output_type="EMITS",
-        output_columns=[Column("t1", int, "INTEGER"),
-                        Column("t2", int, "INTEGER")]
+        output_columns=[Column("t1", int, "INTEGER"), Column("t2", int, "INTEGER")],
     )
     exa = MockExaEnvironment(meta)
     result = executor.run([Group([(1,), (5,), (6,)])], exa)
@@ -86,7 +87,7 @@ def test_next_emit_reset():
         input_type="SET",
         input_columns=[Column("t", int, "INTEGER")],
         output_type="EMITS",
-        output_columns=[Column("t", int, "INTEGER")]
+        output_columns=[Column("t", int, "INTEGER")],
     )
     exa = MockExaEnvironment(meta)
     result = executor.run([Group([(1,), (5,), (6,)])], exa)
@@ -113,7 +114,7 @@ def test_next_reset_combined():
         input_type="SET",
         input_columns=[Column("t", int, "INTEGER")],
         output_type="EMITS",
-        output_columns=[Column("t", int, "INTEGER")]
+        output_columns=[Column("t", int, "INTEGER")],
     )
     exa = MockExaEnvironment(meta)
     result = executor.run([Group([(1,), (5,), (6,)])], exa)
@@ -123,7 +124,7 @@ def test_next_reset_combined():
 def test_get_dataframe_all():
     def udf_wrapper():
         def run(ctx):
-            df = ctx.get_dataframe(num_rows='all')
+            df = ctx.get_dataframe(num_rows="all")
             ctx.emit(df)
 
     executor = UDFMockExecutor()
@@ -132,7 +133,7 @@ def test_get_dataframe_all():
         input_type="SET",
         input_columns=[Column("t", int, "INTEGER")],
         output_type="EMITS",
-        output_columns=[Column("t", int, "INTEGER")]
+        output_columns=[Column("t", int, "INTEGER")],
     )
     exa = MockExaEnvironment(meta)
     result = executor.run([Group([(1,), (5,), (6,)])], exa)
@@ -156,7 +157,7 @@ def test_get_dataframe_iter():
         input_type="SET",
         input_columns=[Column("t", int, "INTEGER")],
         output_type="EMITS",
-        output_columns=[Column("t", int, "INTEGER")]
+        output_columns=[Column("t", int, "INTEGER")],
     )
     exa = MockExaEnvironment(meta)
     result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
@@ -181,7 +182,7 @@ def test_get_dataframe_iter_next():
         input_type="SET",
         input_columns=[Column("t", int, "INTEGER")],
         output_type="EMITS",
-        output_columns=[Column("t", int, "INTEGER")]
+        output_columns=[Column("t", int, "INTEGER")],
     )
     exa = MockExaEnvironment(meta)
     result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
@@ -200,11 +201,17 @@ def test_get_dataframe_num_rows_1():
         input_type="SET",
         input_columns=[Column("t", int, "INTEGER")],
         output_type="EMITS",
-        output_columns=[Column("t", int, "INTEGER")]
+        output_columns=[Column("t", int, "INTEGER")],
     )
     exa = MockExaEnvironment(meta)
     result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
-    assert result == [Group([(1,), ])]
+    assert result == [
+        Group(
+            [
+                (1,),
+            ]
+        )
+    ]
 
 
 def test_get_dataframe_num_rows_0():
@@ -218,11 +225,12 @@ def test_get_dataframe_num_rows_0():
         input_type="SET",
         input_columns=[Column("t", int, "INTEGER")],
         output_type="EMITS",
-        output_columns=[Column("t", int, "INTEGER")]
+        output_columns=[Column("t", int, "INTEGER")],
     )
     exa = MockExaEnvironment(meta)
-    with pytest.raises(RuntimeError) as excinfo:
-        result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+    groups = [Group([(1,), (2,), (3,), (4,), (5,), (6,)])]
+    with pytest.raises(RuntimeError):
+        executor.run(groups, exa)
 
 
 def test_get_dataframe_num_rows_float():
@@ -236,11 +244,13 @@ def test_get_dataframe_num_rows_float():
         input_type="SET",
         input_columns=[Column("t", int, "INTEGER")],
         output_type="EMITS",
-        output_columns=[Column("t", int, "INTEGER")]
+        output_columns=[Column("t", int, "INTEGER")],
     )
     exa = MockExaEnvironment(meta)
-    with pytest.raises(RuntimeError) as excinfo:
-        result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+    groups = [Group([(1,), (2,), (3,), (4,), (5,), (6,)])]
+    with pytest.raises(RuntimeError):
+        executor.run(groups, exa)
+
 
 def test_get_dataframe_num_rows_None():
     def udf_wrapper():
@@ -253,11 +263,12 @@ def test_get_dataframe_num_rows_None():
         input_type="SET",
         input_columns=[Column("t", int, "INTEGER")],
         output_type="EMITS",
-        output_columns=[Column("t", int, "INTEGER")]
+        output_columns=[Column("t", int, "INTEGER")],
     )
     exa = MockExaEnvironment(meta)
-    with pytest.raises(RuntimeError) as excinfo:
-        result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+    groups = [Group([(1,), (2,), (3,), (4,), (5,), (6,)])]
+    with pytest.raises(RuntimeError):
+        executor.run(groups, exa)
 
 
 def test_get_dataframe_num_rows_negative():
@@ -271,11 +282,13 @@ def test_get_dataframe_num_rows_negative():
         input_type="SET",
         input_columns=[Column("t", int, "INTEGER")],
         output_type="EMITS",
-        output_columns=[Column("t", int, "INTEGER")]
+        output_columns=[Column("t", int, "INTEGER")],
     )
     exa = MockExaEnvironment(meta)
-    with pytest.raises(RuntimeError) as excinfo:
-        result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+    groups = [Group([(1,), (2,), (3,), (4,), (5,), (6,)])]
+    with pytest.raises(RuntimeError):
+        executor.run(groups, exa)
+
 
 def test_get_dataframe_start_col_None():
     def udf_wrapper():
@@ -288,11 +301,13 @@ def test_get_dataframe_start_col_None():
         input_type="SET",
         input_columns=[Column("t", int, "INTEGER")],
         output_type="EMITS",
-        output_columns=[Column("t", int, "INTEGER")]
+        output_columns=[Column("t", int, "INTEGER")],
     )
     exa = MockExaEnvironment(meta)
-    with pytest.raises(RuntimeError) as excinfo:
-        result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+    groups = [Group([(1,), (2,), (3,), (4,), (5,), (6,)])]
+    with pytest.raises(RuntimeError):
+        executor.run(groups, exa)
+
 
 def test_get_dataframe_start_col_negative():
     def udf_wrapper():
@@ -305,11 +320,12 @@ def test_get_dataframe_start_col_negative():
         input_type="SET",
         input_columns=[Column("t", int, "INTEGER")],
         output_type="EMITS",
-        output_columns=[Column("t", int, "INTEGER")]
+        output_columns=[Column("t", int, "INTEGER")],
     )
     exa = MockExaEnvironment(meta)
-    with pytest.raises(RuntimeError) as excinfo:
-        result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
+    groups = [Group([(1,), (2,), (3,), (4,), (5,), (6,)])]
+    with pytest.raises(RuntimeError):
+        executor.run(groups, exa)
 
 
 def test_get_dataframe_start_col_0():
@@ -324,11 +340,17 @@ def test_get_dataframe_start_col_0():
         input_type="SET",
         input_columns=[Column("t", int, "INTEGER")],
         output_type="EMITS",
-        output_columns=[Column("t", int, "INTEGER")]
+        output_columns=[Column("t", int, "INTEGER")],
     )
     exa = MockExaEnvironment(meta)
     result = executor.run([Group([(1,), (2,), (3,), (4,), (5,), (6,)])], exa)
-    assert result == [Group([(1,), ])]
+    assert result == [
+        Group(
+            [
+                (1,),
+            ]
+        )
+    ]
 
 
 def test_get_dataframe_start_col_positive():
@@ -340,16 +362,20 @@ def test_get_dataframe_start_col_positive():
     meta = MockMetaData(
         script_code_wrapper_function=udf_wrapper,
         input_type="SET",
-        input_columns=[
-            Column("t1", int, "INTEGER"),
-            Column("t2", int, "INTEGER")],
+        input_columns=[Column("t1", int, "INTEGER"), Column("t2", int, "INTEGER")],
         output_type="EMITS",
-        output_columns=[Column("t", int, "INTEGER")]
+        output_columns=[Column("t", int, "INTEGER")],
     )
     executor = UDFMockExecutor()
     exa = MockExaEnvironment(meta)
     result = executor.run([Group([(1, -1), (2, -2), (3, -3), (4, -4)])], exa)
-    assert result == [Group([(-1,), ])]
+    assert result == [
+        Group(
+            [
+                (-1,),
+            ]
+        )
+    ]
 
 
 def test_emit_tuple_exception():
@@ -364,7 +390,7 @@ def test_emit_tuple_exception():
         input_type="SET",
         input_columns=[Column("t", int, "INTEGER")],
         output_type="EMITS",
-        output_columns=[Column("t", int, "INTEGER")]
+        output_columns=[Column("t", int, "INTEGER")],
     )
     exa = MockExaEnvironment(meta)
     with pytest.raises(TypeError):
@@ -378,9 +404,11 @@ def test_access_variadic_inputs():
             ctx.emit(ctx[1])
             ctx.emit(ctx["2"])
 
-    input_columns = [Column("0", int, "INTEGER"),
-                     Column("1", int, "INTEGER"),
-                     Column("2", int, "INTEGER")]
+    input_columns = [
+        Column("0", int, "INTEGER"),
+        Column("1", int, "INTEGER"),
+        Column("2", int, "INTEGER"),
+    ]
     output_columns = [Column("o1", int, "INTEGER")]
     meta = MockMetaData(
         script_code_wrapper_function=udf_wrapper,
@@ -388,7 +416,8 @@ def test_access_variadic_inputs():
         input_columns=input_columns,
         output_type="EMITS",
         output_columns=output_columns,
-        is_variadic_input=True)
+        is_variadic_input=True,
+    )
 
     input_data = [(1, 2, 3), (4, 5, 6)]
     exa = MockExaEnvironment(meta)
@@ -410,10 +439,12 @@ def test_access_non_variadic_inputs():
             ctx.emit(ctx["t3"])
             ctx.emit(ctx["4"])
 
-    input_columns = [Column("t1", int, "INTEGER"),
-                     Column("t2", int, "INTEGER"),
-                     Column("t3", int, "INTEGER"),
-                     Column("4", int, "INTEGER")]
+    input_columns = [
+        Column("t1", int, "INTEGER"),
+        Column("t2", int, "INTEGER"),
+        Column("t3", int, "INTEGER"),
+        Column("4", int, "INTEGER"),
+    ]
     output_columns = [Column("o1", int, "INTEGER")]
     meta = MockMetaData(
         script_code_wrapper_function=udf_wrapper,
@@ -421,7 +452,8 @@ def test_access_non_variadic_inputs():
         input_columns=input_columns,
         output_type="EMITS",
         output_columns=output_columns,
-        is_variadic_input=False)
+        is_variadic_input=False,
+    )
 
     input_data = [(1, 2, 3, 4), (5, 6, 7, 8)]
     exa = MockExaEnvironment(meta)
@@ -444,14 +476,14 @@ class InvalidTestsForVariadicInputs(unittest.TestCase):
         input_columns = [Column("1", int, "INTEGER")]
         output_columns = [Column("o1", int, "INTEGER")]
         with self.assertRaises(AssertionError):
-            meta = MockMetaData(
+            MockMetaData(
                 script_code_wrapper_function=udf_wrapper,
                 input_type="SET",
                 input_columns=input_columns,
                 output_type="EMITS",
                 output_columns=output_columns,
-                is_variadic_input=True)
-
+                is_variadic_input=True,
+            )
 
     def test_invalid_variadic_input_columns_name(self):
         def udf_wrapper():
@@ -460,7 +492,7 @@ class InvalidTestsForVariadicInputs(unittest.TestCase):
 
         invalid_input_columns_list = [
             [Column("t1", int, "INTEGER")],
-            [Column("1", int, "INTEGER"), Column("3", int, "INTEGER")]
+            [Column("1", int, "INTEGER"), Column("3", int, "INTEGER")],
         ]
         for input_columns in invalid_input_columns_list:
             output_columns = [Column("o1", int, "INTEGER")]
@@ -471,12 +503,13 @@ class InvalidTestsForVariadicInputs(unittest.TestCase):
                     input_columns=input_columns,
                     output_type="EMITS",
                     output_columns=output_columns,
-                    is_variadic_input=True)
+                    is_variadic_input=True,
+                )
 
                 input_data = [(1,)]
                 exa = MockExaEnvironment(meta)
                 executor = UDFMockExecutor()
-                result = executor.run([Group(input_data)], exa)
+                executor.run([Group(input_data)], exa)
 
 
 class InvalidTestsForNonVariadicInputs(unittest.TestCase):
@@ -495,12 +528,13 @@ class InvalidTestsForNonVariadicInputs(unittest.TestCase):
                 input_columns=input_columns,
                 output_type="EMITS",
                 output_columns=output_columns,
-                is_variadic_input=False)
+                is_variadic_input=False,
+            )
 
             input_data = [(1,)]
             exa = MockExaEnvironment(meta)
             executor = UDFMockExecutor()
-            result = executor.run([Group(input_data)], exa)
+            executor.run([Group(input_data)], exa)
 
 
 class InvalidTestsForUDFTypes(unittest.TestCase):
@@ -519,7 +553,8 @@ class InvalidTestsForUDFTypes(unittest.TestCase):
                     input_columns=input_columns,
                     output_type="EMITS",
                     output_columns=output_columns,
-                    is_variadic_input=True)
+                    is_variadic_input=True,
+                )
 
     def test_invalid_output_types(self):
         def udf_wrapper():
@@ -536,4 +571,5 @@ class InvalidTestsForUDFTypes(unittest.TestCase):
                     input_columns=input_columns,
                     output_type=output_types,
                     output_columns=output_columns,
-                    is_variadic_input=True)
+                    is_variadic_input=True,
+                )

@@ -1,40 +1,41 @@
 import re
 import textwrap
-from typing import List
-from exasol_udf_mock_python.column import Column
 from inspect import getsource
+
+from exasol_udf_mock_python.column import Column
 
 
 class MockMetaData:
     def __init__(
-            self,
-            script_code_wrapper_function,
-            input_columns: List[Column],
-            input_type: str,
-            output_columns: List[Column],
-            output_type: str,
-            is_variadic_input: bool = False,
-            script_name: str = "TEST_UDF",
-            script_schema: str = "TEST_SCHEMA",
-            current_user: str = "sys",
-            current_schema: str = "TEST_SCHEMA",
-            scope_user: str = "sys",
-            connection_id: str = "123123",
-            database_name: str = "TEST_DB",
-            database_version: str = "7.0.0",
-            node_count: int = "1",
-            node_id: int = "0",
-            vm_id: int = "123",
-            session_id: int = "123456789",
-            statement_id: int = "123456789",
-            memory_limit: int = 4 * 1073741824,
+        self,
+        script_code_wrapper_function,
+        input_columns: list[Column],
+        input_type: str,
+        output_columns: list[Column],
+        output_type: str,
+        is_variadic_input: bool = False,
+        script_name: str = "TEST_UDF",
+        script_schema: str = "TEST_SCHEMA",
+        current_user: str = "sys",
+        current_schema: str = "TEST_SCHEMA",
+        scope_user: str = "sys",
+        connection_id: str = "123123",
+        database_name: str = "TEST_DB",
+        database_version: str = "7.0.0",
+        node_count: int = "1",
+        node_id: int = "0",
+        vm_id: int = "123",
+        session_id: int = "123456789",
+        statement_id: int = "123456789",
+        memory_limit: int = 4 * 1073741824,
     ):
 
         assert input_type.upper() in ["SET", "SCALAR"]
         assert output_type.upper() in ["EMITS", "RETURNS"]
         if is_variadic_input:
-            assert all([str(i) == str(column.name)
-                        for i, column in enumerate(input_columns)])
+            assert all(
+                [str(i) == str(column.name) for i, column in enumerate(input_columns)]
+            )
 
         self._script_language = "PYTHON3"
         self._script_name = script_name
@@ -42,8 +43,11 @@ class MockMetaData:
         self._current_user = current_user
         self._current_schema = current_schema
         self._scope_user = scope_user
-        self._script_code = (None if script_code_wrapper_function is None
-                             else self._extract_script_code(script_code_wrapper_function))
+        self._script_code = (
+            None
+            if script_code_wrapper_function is None
+            else self._extract_script_code(script_code_wrapper_function)
+        )
         self._connection_id = connection_id
         self._database_name = database_name
         self._database_version = database_version
@@ -66,21 +70,22 @@ class MockMetaData:
     def _extract_script_code(self, script_code_wrapper_function):
         function_code = textwrap.dedent(getsource(script_code_wrapper_function))
         function_name = script_code_wrapper_function.__name__
-        starts_with_pattern = r"^def[ \t]+" + function_name + r"[ \t]*\([ \t]*\)[ \t]*:[ \t]*\n"
+        starts_with_pattern = (
+            r"^def[ \t]+" + function_name + r"[ \t]*\([ \t]*\)[ \t]*:[ \t]*\n"
+        )
         match = re.match(starts_with_pattern, function_code)
         if match is not None:
             return textwrap.dedent("\n".join(function_code.split("\n")[1:]))
         else:
-            formatted_starts_with_pattern = starts_with_pattern.replace("\n", "\\n").replace("\t", "\\t")
-            raise Exception((
-                                    textwrap.dedent(
-                                        f"""
+            formatted_starts_with_pattern = starts_with_pattern.replace(
+                "\n", "\\n"
+            ).replace("\t", "\\t")
+            raise Exception((textwrap.dedent(f"""
                     The script_code_wrapper_function has the wrong header.
                     It needs to start with \"{formatted_starts_with_pattern}\". 
                     However, we got:
                     
-                    """) +
-                                    function_code).strip())
+                    """) + function_code).strip())
 
     def _validate_column_defintions(self, columns):
         column_names_set = {column.name for column in columns}
@@ -89,9 +94,17 @@ class MockMetaData:
             raise TypeError(f"Found duplicate column names in {column_names_list}")
 
     def convert_column_description(self, input_columns):
-        return [(column.name, column.type, column.sql_type,
-                 column.precision, column.scale, column.length)
-                for column in input_columns]
+        return [
+            (
+                column.name,
+                column.type,
+                column.sql_type,
+                column.precision,
+                column.scale,
+                column.length,
+            )
+            for column in input_columns
+        ]
 
     @property
     def script_language(self):

@@ -1,6 +1,9 @@
 import collections.abc
 from abc import abstractmethod
-from typing import List, Tuple, Iterable, Set, Iterator
+from collections.abc import (
+    Iterable,
+    Iterator,
+)
 
 
 class IterableWithSize(collections.abc.Iterable):
@@ -14,20 +17,20 @@ class Group(collections.abc.Iterable):
     Represents a Group (SET Function) or a Batch (Scalar Function) of rows
     """
 
-    def __init__(self, rows: Iterable[Tuple]):
+    def __init__(self, rows: Iterable[tuple]):
         self._rows = rows
 
     def __iter__(self):
         return iter(self._rows)
 
     def __len__(self):
-        if isinstance(self._rows, (List, Set, Tuple, IterableWithSize)):
+        if isinstance(self._rows, (list, set, tuple, IterableWithSize)):
             return len(self._rows)
         else:
             return sum(1 for _ in self._rows)
 
     @property
-    def rows(self) -> List[Tuple]:
+    def rows(self) -> list[tuple]:
         """
         This property transforms the Iterable of rows into a List
         None: This can potentially can cause the materialization of a large list.
@@ -45,7 +48,7 @@ class Group(collections.abc.Iterable):
         other_iter = iter(other)
         return self._compare_iter(self_iter, other_iter)
 
-    def _compare_iter(self, self_iter: Iterator[Tuple], other_iter: Iterator[Tuple]):
+    def _compare_iter(self, self_iter: Iterator[tuple], other_iter: Iterator[tuple]):
         self_at_end = False
         try:
             while True:
