@@ -31,7 +31,7 @@ homepage = "https://github.com/exasol/udf-mock-python"
 
 [dependency-groups]
 dev = [
-    "exasol-toolbox>=11.0.0,<12",
+    "exasol-toolbox>=12.0.0,<13",
     "pandas-stubs>=2.3.3.251219,<3",
     "pytest>=8.2.2,<10",
     "pytest-cov>=5.0.0,<6",
